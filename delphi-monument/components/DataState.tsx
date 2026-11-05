@@ -30,7 +30,7 @@ export function DataState({ state, minHeight = 220, loading, empty, error, parti
     return (
       <div className="m-state" style={box} role="status">
         <span className="m-who">{loading?.text ?? "Загружаю данные"}</span>
-        <Meander value={loading?.progress ?? 0.35} tone="ai" units={18} label={`Загрузка${loading?.progress != null ? `, ${Math.round(loading.progress * 100)}%` : ""}`} />
+        <Meander value={loading?.progress ?? 0.35} tone="ai" label={`Загрузка${loading?.progress != null ? `, ${Math.round(loading.progress * 100)}%` : ""}`} />
         <div className="m-skel" /><div className="m-skel" />
       </div>
     );

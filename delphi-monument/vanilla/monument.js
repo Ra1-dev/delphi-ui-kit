@@ -1,10 +1,12 @@
 /*
   Delphi Monument for plain HTML pages (no React): draws the signs into markup that uses monument.css.
-  Include after the markup:  <script src="monument/vanilla/monument.js"></script>
+  Include it after the markup with a script tag whose src points to monument/vanilla/monument.js,
+  or paste the whole file inline for a single-file page: it contains no closing script tag, so inlining is safe.
+  The inscription h1 needs only the class m-inscr plus data-inscription (one element = one inscription).
 
   Markup it understands:
     <h1 class="m-inscr" data-inscription>Продажи октябрь</h1>                        words → interpuncts, no dot at line end
-    <svg class="m-meander" data-meander="0.97" data-units="24" data-goal role="img" aria-label="Выполнено 97% плана"></svg>
+    <svg class="m-meander" data-meander="0.97" data-goal role="img" aria-label="Выполнено 97% плана"></svg>
         data-tone="ai" (bronze) or "error" on the svg for other tones
     <svg class="m-colon" data-colonnade='[["1–7 окт",93.5],["29–31",38.6,"partial"],["1–7 ноя",100,"forecast"]]'
          data-mark='{"before":5,"label":"Сегодня"}' role="img" aria-label="…"></svg>
@@ -29,7 +31,9 @@
   }
   var clipN = 0;
   function meander(svg) {
-    var units = +(svg.getAttribute("data-units") || 24), v = Math.max(0, Math.min(1, +svg.getAttribute("data-meander")));
+    /* data-units optional: by default one unit per ~44 px of the available width */
+    var avail = (svg.parentElement && svg.parentElement.clientWidth) || 1000;
+    var units = +(svg.getAttribute("data-units") || Math.max(6, Math.round(avail / 44))), v = Math.max(0, Math.min(1, +svg.getAttribute("data-meander")));
     var W = 40 * units, d = meanderPath(units), id = "mclip" + (clipN++);
     svg.setAttribute("viewBox", "0 0 " + W + " 44");
     var cp = el(el(svg, "defs", {}), "clipPath", { id: id });
@@ -43,7 +47,10 @@
     var rows = JSON.parse(svg.getAttribute("data-colonnade"));
     var mark = svg.getAttribute("data-mark") ? JSON.parse(svg.getAttribute("data-mark")) : null;
     if (rows.length < 3 || rows.length > 10) console.warn("Colonnade works for 3-10 values; use a line chart for longer series.");
-    var W = Math.max(400, rows.length * 100), base = 230, top0 = 40, s = W / rows.length;
+    var W = rows.length * 100, base = 230, top0 = 40, s = W / rows.length;
+    /* 78-130 px per column keeps labels at 14 px or more; the wrapper scrolls on narrow screens */
+    svg.style.minWidth = rows.length * 78 + "px"; svg.style.maxWidth = rows.length * 130 + "px";
+    if (!svg.parentElement.classList.contains("m-colon-wrap")) { var wrap = document.createElement("div"); wrap.className = "m-colon-wrap"; svg.parentNode.insertBefore(wrap, svg); wrap.appendChild(svg); }
     var hi = +(svg.getAttribute("data-max") || 0) || Math.max.apply(null, rows.map(function (r) { return r[1]; })) * 1.1;
     var k = (base - top0) / hi;
     var dec = rows.some(function (r) { return r[1] % 1; }) ? 1 : 0;

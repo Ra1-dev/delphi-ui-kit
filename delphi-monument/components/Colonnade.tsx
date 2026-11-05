@@ -37,12 +37,15 @@ export function Colonnade({ rows, max, format, mark, callout, label, className }
   if (rows.length < 3 || rows.length > 10) {
     console.warn(`Colonnade: ${rows.length} values. It works for 3-10; use a line chart for longer series.`);
   }
-  const slot = 100, W = Math.max(400, rows.length * slot), base = 230, top0 = 40;
+  /* Width follows the number of columns: 100 units per column, drawn at 78-130 px per column.
+     78 px keeps the 18-unit labels at 14 px on a phone; the wrapper scrolls if the screen is narrower. */
+  const slot = 100, W = rows.length * slot, base = 230, top0 = 40;
   const hi = max ?? Math.max(...rows.map((r) => r.value)) * 1.1;
   const k = (base - top0) / hi;
   const s = W / rows.length;
   return (
-    <svg className={cx("m-colon", className)} viewBox={`0 0 ${W} 280`} role="img" aria-label={label}>
+    <div className="m-colon-wrap">
+    <svg className={cx("m-colon", className)} viewBox={`0 0 ${W} 280`} role="img" aria-label={label} style={{ minWidth: rows.length * 78, maxWidth: rows.length * 130 }}>
       <rect x="0" y={base} width={W} height="7" className="m-stylo" />
       {rows.map((r, i) => {
         const cx0 = s * i + s / 2, top = base - r.value * k;
@@ -68,11 +71,12 @@ export function Colonnade({ rows, max, format, mark, callout, label, className }
         </g>
       )}
       {callout && (
-        <text x={s * callout.at + s / 2} y={base - rows[callout.at].value * k - 40} textAnchor="middle" style={{ fill: "var(--m-orchid)", font: "700 22px var(--m-f-book)" }}>
+        <text x={s * callout.at + s / 2} y={base - rows[callout.at].value * k - 44} textAnchor="middle" className="m-callout">
           {callout.text}
         </text>
       )}
     </svg>
+    </div>
   );
 }
 

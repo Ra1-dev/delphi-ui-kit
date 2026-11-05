@@ -23,7 +23,16 @@ export function Alert({ kind = "warn", title, children }: { kind?: "warn" | "err
   );
 }
 
-/** Status in a table cell or list: a short bar plus a word. ok / warn (gold) / error. */
-export function StatusMark({ kind = "ok", children }: { kind?: "ok" | "warn" | "error"; children: ReactNode }) {
+/**
+ * Status in a table cell or list: a short bar plus a word.
+ * System states: ok, warn (gold), error (danger). Severity of a DATA item (a finding, a defect): attention (orchid) for high, neutral for the rest.
+ * Never use error/danger for the severity of data: danger means the system failed.
+ */
+export function StatusMark({ kind = "ok", children }: { kind?: "ok" | "warn" | "error" | "attention" | "neutral"; children: ReactNode }) {
   return <span className="m-status" data-kind={kind}>{children}</span>;
+}
+
+/** Inline correction: put <del> around removed text and <ins> around inserted text. Inserted text is bronze (the AI voice). */
+export function Redline({ children }: { children: ReactNode }) {
+  return <p className="m-redline">{children}</p>;
 }

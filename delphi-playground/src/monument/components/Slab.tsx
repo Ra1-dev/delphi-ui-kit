@@ -10,6 +10,8 @@ type Props = {
   figure?: ReactNode;
   /** Horizontal band: figure on the left, meaning on the right. Default for wide screens */
   band?: boolean;
+  /** "note": on phones (<= 600 px) this slab turns into a margin note, so a phone screen keeps one slab in total */
+  mobile?: "slab" | "note";
   children?: ReactNode;
   className?: string;
 };
@@ -18,9 +20,9 @@ type Props = {
  * A slab of paint: deep pigment with light text. The single strongest accent on a screen.
  * At most one orchid and one bronze slab per screen, one in total on a phone. Never a pastel card, never a grid of slabs.
  */
-export function Slab({ tone, title, figure, band = false, children, className }: Props) {
+export function Slab({ tone, title, figure, band = false, mobile = "slab", children, className }: Props) {
   return (
-    <div className={cx("m-slab", className)} data-tone={tone} data-band={band ? "true" : undefined}>
+    <div className={cx("m-slab", className)} data-tone={tone} data-band={band ? "true" : undefined} data-mobile={mobile === "note" ? "note" : undefined}>
       <span className="m-slab-t">{title}</span>
       {figure != null && <span className="m-slab-k">{figure}</span>}
       {children != null && (band ? <div className="m-slab-body">{children}</div> : children)}

@@ -3,7 +3,7 @@ export { Meander, meanderPath } from "./Meander";
 export { Colonnade, ColonnadeLegend } from "./Colonnade";
 export type { ColumnRow } from "./Colonnade";
 export { Slab } from "./Slab";
-export { MarginNote, Alert, StatusMark } from "./Notes";
+export { MarginNote, Alert, StatusMark, Redline } from "./Notes";
 export { Thesis, MuseumLabel, Question, Who } from "./Text";
 export { AppHeader, Page, Grid, Bay, Base } from "./Layout";
 export type { NavItem } from "./Layout";

@@ -169,6 +169,14 @@
 .m-status::before { content: ""; width: 4px; height: 16px; background: var(--m-ok); flex: none; }
 .m-status[data-kind="warn"] { color: var(--m-gold-text); } .m-status[data-kind="warn"]::before { background: var(--m-gold); }
 .m-status[data-kind="error"] { color: var(--m-danger); } .m-status[data-kind="error"]::before { background: var(--m-danger); }
+.m-status[data-kind="neutral"] { color: var(--m-ink2); } .m-status[data-kind="neutral"]::before { background: var(--m-line); }
+.m-status[data-kind="attention"] { color: var(--m-orchid); } .m-status[data-kind="attention"]::before { background: var(--m-orchid); }
+
+/* ---------- inline correction: removed text struck through, inserted text in bronze (the AI voice) ---------- */
+.m-redline { font-size: 18px; line-height: 1.55; }
+.m-redline del { text-decoration-thickness: 2px; opacity: .75; }
+.m-redline ins { text-decoration: none; font-weight: 700; color: var(--m-bronze); border-bottom: 2px solid currentColor; }
+.m-slab .m-redline ins { color: inherit; }
 
 /* ---------- fields: writing on a line ---------- */
 .m-field { display: grid; gap: 6px; min-width: 0; }
@@ -231,6 +239,7 @@
 .m-meander .m-goal { stroke: var(--m-ink2); stroke-width: 2; stroke-dasharray: 3 4; }
 
 /* ---------- colonnade bar chart (SVG drawn by Colonnade / monument.js) ---------- */
+.m-colon-wrap { overflow-x: auto; overflow-y: hidden; padding-top: 4px; }
 .m-colon { width: 100%; height: auto; display: block; overflow: visible; }
 .m-colon .m-fact { fill: var(--m-marble); }
 .m-colon .m-part { fill: var(--m-marble-dim); }
@@ -239,10 +248,11 @@
 .m-colon .m-flute-fc { stroke: var(--m-b-deep); stroke-width: 2.5; }
 [data-theme="paper"] .m-colon .m-flute-fc { stroke: var(--m-stone); }
 .m-colon .m-stylo { fill: var(--m-line); }
-.m-colon .m-val { fill: var(--m-ink); font: 700 17px var(--m-f-book); }
-.m-colon .m-lab { fill: var(--m-ink2); font: 500 14px var(--m-f-book); }
+.m-colon .m-val { fill: var(--m-ink); font: 700 20px var(--m-f-book); }
+.m-colon .m-lab { fill: var(--m-ink2); font: 500 18px var(--m-f-book); }
 .m-colon .m-mark { stroke: var(--m-ink2); stroke-width: 2; stroke-dasharray: 4 5; }
-.m-colon .m-mark-t { fill: var(--m-ink); font: 700 15px var(--m-f-book); }
+.m-colon .m-mark-t { fill: var(--m-ink); font: 700 18px var(--m-f-book); }
+.m-colon .m-callout { fill: var(--m-orchid); font: 700 26px var(--m-f-book); }
 .m-legend { display: flex; flex-wrap: wrap; gap: 4px 22px; font-size: 15px; font-weight: 500; color: var(--m-ink2); }
 .m-legend i { display: inline-block; width: 14px; height: 14px; vertical-align: -1px; margin-right: 8px; background: var(--m-marble); }
 .m-legend i[data-k="partial"] { background: var(--m-marble-dim); }
@@ -256,6 +266,17 @@
 /* ---------- phone frame for presenting mobile screens (not for real apps) ---------- */
 .m-phone { border: 1px solid var(--m-line); padding: 18px 18px 26px; display: grid; gap: 20px; align-content: start; max-width: 390px; }
 
+/* A slab marked data-mobile="note" turns into a margin note on phones, so a phone screen keeps one slab in total */
+@media (max-width: 600px) {
+  .m-slab[data-mobile="note"] { background: none; color: var(--m-ink2); padding: 10px 0 0; border-top: 3px solid var(--m-bronze); }
+  .m-slab[data-mobile="note"][data-tone="orchid"] { border-top-color: var(--m-orchid); }
+  .m-slab[data-mobile="note"] .m-slab-t { color: var(--m-bronze); }
+  .m-slab[data-mobile="note"][data-tone="orchid"] .m-slab-t, .m-slab[data-mobile="note"][data-tone="orchid"] .m-slab-k { color: var(--m-orchid); }
+  .m-slab[data-mobile="note"] .m-slab-k { font-size: 40px; color: var(--m-bronze); }
+  .m-slab[data-mobile="note"] .m-slab-body > b, .m-slab[data-mobile="note"] b { color: var(--m-ink); }
+  .m-slab[data-mobile="note"] .m-btn { background: var(--m-ink); color: var(--m-on-ink); }
+  .m-slab[data-mobile="note"] .m-redline ins { color: var(--m-bronze); }
+}
 @media (max-width: 900px) {
   .m-bay[data-span] { grid-column: span 12; }
   .m-bay[data-side] { border-left: 0; padding-left: 0; }

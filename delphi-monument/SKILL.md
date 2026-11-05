@@ -33,7 +33,7 @@ You are building a screen for team Delphi. The style is decided; your job is to 
 - Mobile: check 375 px.
 
 ## Before you say "done"
-1. Run `node monument/scripts/check-monument.mjs src` and fix every finding. Zero is the bar.
+1. Run `node monument/scripts/check-monument.mjs <your sources>` (it reads .tsx, .html, .py, .j2 and other templates) and fix every finding. Zero is the bar. Run it on sources, not on built or generated pages.
 2. Walk the checklist in `rules/MONUMENT.md` §11.
 3. Do the anti-slop test at the end of `rules/anti-slop.md`.
 

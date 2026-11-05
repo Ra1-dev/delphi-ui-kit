@@ -58,7 +58,7 @@ export default function DashboardScreen({ state = "partial" }: { state?: DataSta
           <MuseumLabel title="Выручка по неделям, млн ₸" source="факт и прогноз на две недели" />
           <ColonnadeLegend items={[{ kind: "fact", label: "Факт" }, { kind: "partial", label: "Неполная неделя, 3 дня" }, { kind: "forecast", label: "Прогноз ИИ" }]} />
           <Colonnade rows={weeks} mark={{ before: 5 }} label="Выручка по неделям октября от 93,5 до 97,4 млн тенге, неполная неделя 38,6, прогноз 100,0 и 102,1" />
-          <Slab tone="bronze" band title="Прогноз ИИ · 1–14 ноября · модель v2.3" figure="202,1">
+          <Slab tone="bronze" band mobile="note" title="Прогноз ИИ · 1–14 ноября · модель v2.3" figure="202,1">
             <b>млн ₸, интервал ± 9 млн</b>
             <p>Пики по субботам сохранятся: 17,0 и 17,3 млн в день. Если Абая, 12 откроет вход с 10 ноября, прогноз вырастет на 3,1 млн.</p>
           </Slab>
