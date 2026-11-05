@@ -1,0 +1,319 @@
+<title>Delphi Монумент</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap">
+<style>
+/* Layout: one night dashboard on a 12-column "order" grid: entablature (header + inscription), bays of content, a stepped base.
+   Two switches: layout = inlay (stone slabs set edge to edge, like opus sectile) or order (columns divided by rules);
+   paint = in the signs (numbers, meander, forecast columns) or on the slabs (key number on an orchid slab, AI forecast on a bronze slab).
+   Deliberately dark-only for now: the light version is derived after the direction is chosen. */
+:root {
+  color-scheme: dark;
+  --stone: #14171B; --slab1: #1C2025; --slab2: #22272D; --slab3: #191C21; --grout: #0F1114;
+  --line: #353B43; --ink: #ECEDEA; --ink-2: #BCC0BB; --ink-3: #9AA09A;
+  --marble: #D9DBD7; --marble-dim: #8F948F;
+  --orchid: #E38FD9; --bronze: #E3A462; --on-paint: #16181B;
+  --warn: #E3B158;
+  --carve: -.014em -.014em .004em rgba(0, 0, 0, .85), .015em .015em .004em rgba(255, 255, 255, .14);
+  --ch-bg: #0B0C0E; --ch-fg: #F2F2EF; --ch-dim: #9EA19C;
+  --f-carve: "Forum", "Times New Roman", serif;
+  --f-book: "Literata", Georgia, "Times New Roman", serif;
+  --f-chrome: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--stone); color: var(--ink); font: 400 17px/1.55 var(--f-book); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ch-bg); }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* presentation chrome */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--ch-bg); color: var(--ch-fg); font: 500 13px/1.2 var(--f-chrome); }
+.bar .in { max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; padding-block: 9px; }
+.grp { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; }
+.grp > span { color: var(--ch-dim); }
+.grp button { font: inherit; color: var(--ch-dim); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 0; cursor: pointer; }
+.grp button[aria-pressed="true"] { color: #fff; border-bottom-color: #fff; }
+.grp button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (max-width: 640px) { .bar { position: static; } }
+
+.page { max-width: 1280px; margin: 0 auto; padding-block: 28px 56px; }
+
+/* Entablature: app bar with a cornice profile (thick rule + thin rule) under it */
+.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 28px; padding-bottom: 16px; position: relative; }
+.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px; border-top: 4px solid var(--ink); border-bottom: 1px solid var(--line); }
+.app { font: 400 28px/1 var(--f-carve); letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.nav { display: flex; flex-wrap: wrap; gap: 6px 26px; font-size: 17px; font-weight: 600; color: var(--ink-2); }
+.nav .on { color: var(--ink); text-decoration: underline; text-decoration-color: var(--bronze); text-decoration-thickness: 3px; text-underline-offset: 9px; }
+.where { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+/* Board: 12-column order grid */
+.board { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); margin-top: 26px; }
+.c8 { grid-column: span 8; } .c4 { grid-column: span 4; } .c12 { grid-column: span 12; }
+.cell { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 14px; }
+/* inlay: slabs of slightly different stone, set edge to edge with a dark grout line */
+:root[data-lay="inlay"] .board { gap: 4px; background: var(--grout); border: 4px solid var(--grout); }
+:root[data-lay="inlay"] .cell { padding: 26px 28px 28px; background: var(--slab1); }
+:root[data-lay="inlay"] .cell.t2 { background: var(--slab2); }
+:root[data-lay="inlay"] .cell.t3 { background: var(--slab3); }
+/* order: no slabs, bays divided by rules like the gaps between columns */
+:root[data-lay="order"] .cell { padding: 28px 30px 34px; border-top: 1px solid var(--line); }
+:root[data-lay="order"] .cell.side { border-left: 1px solid var(--line); }
+:root[data-lay="order"] .cell.c12, :root[data-lay="order"] .cell.first { padding-left: 0; }
+:root[data-lay="order"] .cell.side { padding-right: 0; }
+
+/* Museum label: what this is, where it comes from, when it was updated. Readable, not tiny */
+.label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.label b { font-size: 19px; font-weight: 700; color: var(--ink); }
+.label span { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+/* Inscription + the thought of the screen, said big */
+.inscr { margin: 0; font: 400 clamp(30px, 5.6vw, 76px)/1.04 var(--f-carve); text-transform: uppercase; letter-spacing: .03em; color: var(--orchid); text-shadow: var(--carve); text-wrap: balance; }
+.ip::before { content: "\00B7"; color: var(--bronze); padding: 0 .05em; }
+.ip.eol { visibility: hidden; }
+.thesis { margin: 0; font-size: clamp(20px, 2vw, 25px); line-height: 1.4; font-weight: 500; max-width: 34ch; }
+.thesis b { font-weight: 700; color: var(--orchid); }
+.acts { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; margin-top: 6px; }
+.btn { font: 700 17px/1 var(--f-book); background: var(--ink); color: var(--on-paint); border: 0; padding: 17px 26px; cursor: pointer; }
+.btn:hover { background: #fff; }
+.link { font: 600 17px/1.3 var(--f-book); color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--marble-dim); text-underline-offset: 6px; }
+.link:hover { text-decoration-color: var(--ink); }
+:is(.btn, .link):focus-visible { outline: 3px solid var(--bronze); outline-offset: 3px; }
+
+/* Key number */
+.big { font: 700 clamp(64px, 7.4vw, 104px)/.92 var(--f-book); letter-spacing: -.03em; font-variant-numeric: lining-nums; color: var(--orchid); }
+.unit { font-size: 19px; font-weight: 600; color: var(--ink); }
+.delta { font-size: 17px; font-weight: 600; color: var(--ink-2); }
+.delta b { color: var(--ink); }
+
+/* Meander used as a progress bar: the key pattern is "cut" up to the share of the plan done */
+.plan { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 28px; align-items: end; }
+.plan .pct { font: 700 52px/1 var(--f-book); color: var(--orchid); font-variant-numeric: lining-nums; }
+.meander { width: 100%; height: auto; display: block; grid-column: 1 / -1; }
+.meander .rest { stroke: var(--line); }
+.meander .done { stroke: var(--orchid); }
+.meander .goal { stroke: var(--ink-2); stroke-width: 2; stroke-dasharray: 3 4; }
+.scale { grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+/* Colonnade = bar chart: marble columns for weeks done, bronze columns for the forecast */
+.colon { width: 100%; height: auto; display: block; overflow: visible; }
+.colon .shaft { fill: var(--marble); }
+.colon .part { fill: var(--marble-dim); }
+.colon .fc { fill: var(--bronze); }
+.colon .capband { fill: var(--stone); opacity: .55; }
+.colon .flute { stroke: var(--slab1); stroke-width: 2.5; }
+.colon .flute.fcf { stroke: color-mix(in srgb, var(--bronze) 60%, #000); }
+.colon .stylo { fill: var(--line); }
+.colon .val { fill: var(--ink); font: 700 17px var(--f-book); }
+.colon .wk { fill: var(--ink-2); font: 500 14px var(--f-book); }
+.colon .today { stroke: var(--ink-3); stroke-dasharray: 3 5; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 22px; font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.legend i { display: inline-block; width: 14px; height: 14px; vertical-align: -1px; margin-right: 8px; background: var(--marble); }
+.legend i.f { background: var(--bronze); }
+.legend i.p { background: var(--marble-dim); }
+
+/* AI voice */
+.ai .who { font-size: 15px; font-weight: 700; color: var(--bronze); letter-spacing: .01em; }
+.ai .fig { font: 700 44px/1 var(--f-book); color: var(--bronze); font-variant-numeric: lining-nums; }
+.ai p { margin: 0; font-size: 17px; color: var(--ink-2); }
+.ai p b { color: var(--ink); font-weight: 700; }
+
+/* Table: readable rows, bold numbers */
+table { width: 100%; border-collapse: collapse; font-size: 17px; }
+th { text-align: left; font-size: 15px; font-weight: 600; color: var(--ink-2); padding: 0 14px 10px 0; border-bottom: 3px solid var(--ink); white-space: nowrap; }
+td { padding: 13px 14px 13px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+:is(th, td):last-child { padding-right: 0; }
+:is(th, td).r { text-align: right; font-variant-numeric: tabular-nums lining-nums; }
+td.r { font-weight: 700; }
+td.name { font-weight: 600; }
+tr.low td.name, tr.low td.pl { color: var(--orchid); }
+td small { display: block; font-size: 14px; font-weight: 500; color: var(--ink-3); }
+.tw { overflow-x: auto; }
+.more { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+.note { display: grid; gap: 8px; }
+.note .who { font-size: 15px; font-weight: 700; color: var(--bronze); }
+.note p { margin: 0; color: var(--ink-2); }
+.note p b { color: var(--ink); }
+.state { border-left: 3px solid var(--warn); padding: 4px 0 4px 14px; font-size: 16px; color: var(--ink-2); }
+.state b { color: var(--ink); }
+
+/* Paint on the slabs: the key number sits on an orchid slab, the AI forecast on a bronze slab */
+:root[data-paint="slabs"] .cell.key { background: var(--orchid); color: var(--on-paint); }
+:root[data-paint="slabs"] .cell.key :is(.big, .unit, .delta, .delta b, .label b, .label span) { color: var(--on-paint); }
+:root[data-paint="slabs"] .cell.ai { background: var(--bronze); color: var(--on-paint); }
+:root[data-paint="slabs"] .cell.ai :is(.who, .fig, p, p b, .label b, .label span) { color: var(--on-paint); }
+:root[data-paint="slabs"][data-lay="order"] .cell.key, :root[data-paint="slabs"][data-lay="order"] .cell.ai { padding-left: 30px; padding-right: 30px; border: 0; }
+
+/* Stepped base (krepidoma): three steps under the board carry the footer */
+.base { margin-top: 26px; display: grid; justify-items: center; }
+.base i { display: block; height: 7px; background: var(--slab2); }
+.base i:nth-child(1) { width: 96%; } .base i:nth-child(2) { width: 98%; background: var(--slab1); } .base i:nth-child(3) { width: 100%; background: var(--slab3); }
+:root[data-lay="order"] .base i { height: 0; border-top: 2px solid var(--line); margin-top: 5px; background: none; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-top: 14px; font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  .c8, .c4 { grid-column: span 12; }
+  :root[data-lay="order"] .cell.side { border-left: 0; padding-left: 0; }
+  :root[data-lay="inlay"] .cell { padding: 22px 18px 24px; }
+  .plan .pct { font-size: 40px; }
+}
+/* Slabs as paint: deep pigment with light text (orchid = key data, bronze = AI voice), set as horizontal bands */
+:root { --o-deep: #9B3590; --b-deep: #8C5524; --o-light: #FBEFF8; --b-light: #F8EEE2; }
+.slabrow { padding-top: 0; border-top: 0; }
+:root[data-lay="order"] .cell.c12.first { padding-right: 0; }
+.slab { padding: 22px 26px 24px; display: grid; gap: 8px; }
+.slab.o { background: var(--o-deep); color: var(--o-light); }
+.slab.b { background: var(--b-deep); color: var(--b-light); margin-top: 10px; }
+.slab .k { font: 700 clamp(64px, 7vw, 104px)/.92 var(--f-book); letter-spacing: -.03em; font-variant-numeric: lining-nums; }
+.slab .t { font-size: 15px; font-weight: 700; }
+.slab.band-h { grid-template-columns: auto minmax(0, 1fr); align-items: end; column-gap: 32px; }
+.slab.band-h .t { grid-column: 1 / -1; }
+.slab .what { display: grid; gap: 6px; padding-bottom: 8px; max-width: 62ch; }
+.slab .what b { font-size: 22px; font-weight: 700; }
+.slab .what p { margin: 0; font-size: 17px; font-weight: 500; }
+.slab .what p b { font-size: inherit; }
+.mnote { display: grid; gap: 8px; }
+.mnote .who { font-size: 15px; font-weight: 700; color: var(--bronze); }
+.mnote p { margin: 0; color: var(--ink-2); }
+.mnote p b { color: var(--ink); }
+@media (max-width: 900px) { .slab.band-h { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="bar gutter" role="toolbar" aria-label="Варианты">
+  <div class="in">
+    <b>Delphi · монумент</b><span style="color: var(--ch-dim)">ордер, плиты-пигмент, главная цифра над надписью, колоннада с абакой, меандр-шкала</span>
+  </div>
+</div>
+
+<main class="page gutter">
+  <header class="top">
+    <span class="app">Касса</span>
+    <nav class="nav" aria-label="Разделы"><span class="on">Продажи</span><span>Магазины</span><span>Прогноз</span><span>Выгрузки</span></nav>
+    <span class="where">Алматы · 14 магазинов · октябрь 2026</span>
+  </header>
+
+  <div class="board">
+    <section class="cell c12 first slabrow" aria-label="Выручка за октябрь">
+      <div class="slab o band-h">
+        <span class="t">Выручка за октябрь · кассы 14 магазинов, 09:40</span>
+        <span class="k">421,1</span>
+        <div class="what"><b>млн ₸</b><p><b>+6,2%</b> к сентябрю, <b>+24,6 млн ₸</b>. Это лучший месяц года.</p></div>
+      </div>
+    </section>
+    <section class="cell c12 first" aria-labelledby="h1" style="border-top: 0">
+      <h1 class="inscr" id="h1">Продажи<span class="ip"></span><wbr>октябрь</h1>
+      <p class="thesis">Сеть выполнила план на <b>97%</b>. Отстают три магазина, сильнее всего <b>Абая, 12</b>: там ремонт улицы.</p>
+      <div class="acts"><button type="button" class="btn">Выгрузить отчёт</button><button type="button" class="link">Изменить план</button></div>
+    </section>
+
+    <section class="cell c12 first" aria-label="Выполнение плана">
+      <div class="plan">
+        <div class="label"><b>План октября</b><span>434,1 млн ₸, утверждён 1 октября</span></div>
+        <span class="pct">97%</span>
+        <svg class="meander" id="meander" viewBox="0 0 1000 44" role="img" aria-label="Выполнено 97% плана"></svg>
+        <div class="scale"><span>0</span><span>421,1 из 434,1 млн ₸, не хватает 13,0</span><span>100%</span></div>
+      </div>
+    </section>
+
+    <section class="cell c12 first" aria-label="Выручка по неделям">
+      <div class="label"><b>Выручка по неделям, млн ₸</b><span>факт и прогноз на две недели</span></div>
+      <div class="legend"><span><i></i>Факт</span><span><i class="p"></i>Неполная неделя, 3 дня</span><span><i class="f"></i>Прогноз ИИ</span></div>
+      <svg class="colon" id="colon" viewBox="0 0 720 300" role="img" aria-label="Выручка по неделям октября от 93,5 до 97,4 млн тенге, неполная неделя 38,6, прогноз 100,0 и 102,1"></svg>
+      <div class="slab b band-h">
+        <span class="t">Прогноз ИИ · 1–14 ноября · модель v2.3</span>
+        <span class="k">202,1</span>
+        <div class="what"><b>млн ₸, интервал ± 9 млн</b><p>Пики по субботам сохранятся: 17,0 и 17,3 млн в день. Если Абая, 12 откроет вход с 10 ноября, прогноз вырастет на 3,1 млн.</p></div>
+      </div>
+    </section>
+
+    <section class="cell c8 first" aria-label="Магазины">
+      <div class="label"><b>Магазины по выполнению плана</b><span>сначала отстающие</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Магазин</th><th class="r">Выручка, млн ₸</th><th class="r">К сентябрю</th><th class="r">План</th></tr></thead>
+        <tbody>
+          <tr class="low"><td class="name">Абая, 12<small>Алмалинский</small></td><td class="r">19,7</td><td class="r">−31%</td><td class="r pl">71%</td></tr>
+          <tr class="low"><td class="name">Жандосова, 58<small>Ауэзовский</small></td><td class="r">25,4</td><td class="r">−12%</td><td class="r pl">84%</td></tr>
+          <tr class="low"><td class="name">Кульджинский тракт, 22<small>Медеуский</small></td><td class="r">22,2</td><td class="r">−4%</td><td class="r pl">89%</td></tr>
+          <tr><td class="name">Рыскулова, 140<small>Жетысуский</small></td><td class="r">28,0</td><td class="r">+1%</td><td class="r">95%</td></tr>
+          <tr><td class="name">Райымбека, 233<small>Алатауский</small></td><td class="r">28,6</td><td class="r">+2%</td><td class="r">96%</td></tr>
+        </tbody>
+      </table></div>
+      <span class="more">Ещё 9 магазинов выполнили план на 97–108%. <button type="button" class="link">Показать все 14</button></span>
+    </section>
+    <section class="cell c4 side mnote" aria-label="Почему отстаёт Абая, 12">
+      <div class="label"><b>Почему отстаёт Абая, 12</b></div>
+      <span class="who">Объяснение ИИ</span>
+      <p>С 14 октября вход со стороны Абая закрыт. Чеков меньше на <b>38%</b>, средний чек почти не изменился. <b>Причина внешняя</b>, ассортимент менять не нужно.</p>
+      <div class="state" role="status"><b>Данные неполные.</b> За 31 октября нет выгрузки от 2 магазинов. Повторим в 10:00.</div>
+    </section>
+  </div>
+
+  <div class="base" aria-hidden="true"><i></i><i></i><i></i></div>
+  <footer class="foot"><span>Касса · команда Delphi</span><span>Условия · Конфиденциальность</span></footer>
+</main>
+
+<script>
+(function () {
+  const ns = "http://www.w3.org/2000/svg";
+  const mk = (svg, tag, a, text) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; svg.appendChild(e); return e; };
+
+  /* Meander progress: one continuous key pattern; the done part is drawn over the rest, clipped at the share of the plan */
+  const m = document.getElementById("meander"), U = 40, N = 25, s = 2;
+  let d = "M0 " + (2 + 19 * s) + " H" + U * N;
+  for (let i = 0; i < N; i++) { const o = i * U, y = 2; d += " M" + (o + s) + " " + (y + 19 * s) + " V" + (y + s) + " H" + (o + 19 * s) + " V" + (y + 15 * s) + " H" + (o + 7 * s) + " V" + (y + 7 * s) + " H" + (o + 13 * s) + " V" + (y + 11 * s); }
+  const defs = mk(m, "defs", {}); const cp = mk(defs, "clipPath", { id: "done" }); mk(cp, "rect", { x: 0, y: 0, width: 1000 * 0.97, height: 44 });
+  mk(m, "path", { d, class: "rest", fill: "none", "stroke-width": 3, "stroke-linecap": "square" });
+  mk(m, "path", { d, class: "done", fill: "none", "stroke-width": 3, "stroke-linecap": "square", "clip-path": "url(#done)" });
+  mk(m, "line", { x1: 1000, x2: 1000, y1: 0, y2: 44, class: "goal" });
+
+  /* Colonnade: weekly revenue as marble columns (fluted shaft + base) on a stylobate.
+     The top edge of the column is always exactly the value; four ways to finish the top:
+     capital = wide slab (classic), abacus = one thin wide line at the value, band = a dark band inside the shaft width, none = flat cut shaft */
+  const c = document.getElementById("colon");
+  const weeks = [["1–7 окт", 93.5, "f"], ["8–14", 95.2, "f"], ["15–21", 96.4, "f"], ["22–28", 97.4, "f"], ["29–31", 38.6, "p"], ["1–7 ноя", 100.0, "c"], ["8–14", 102.1, "c"]];
+  function drawColon(mode) {
+    c.replaceChildren();
+    const base = 250, k = 200 / 110, slot = 720 / weeks.length;
+    mk(c, "rect", { x: 0, y: base, width: 720, height: 7, class: "stylo" });
+    weeks.forEach(([lab, v, t], i) => {
+      const cx = slot * i + slot / 2, h = v * k, sw = 46, top = base - h;
+      const cls = t === "c" ? "fc" : t === "p" ? "part" : "shaft";
+      let shaftTop = top, fluteTop = top + 10;
+      if (mode === "capital") { mk(c, "rect", { x: cx - 31, y: top, width: 62, height: 9, class: cls }); shaftTop = top + 9; fluteTop = top + 15; }
+      mk(c, "rect", { x: cx - sw / 2, y: shaftTop, width: sw, height: base - 9 - shaftTop, class: cls });
+      if (mode === "abacus") mk(c, "rect", { x: cx - 33, y: top - 1.5, width: 66, height: 3, class: cls });
+      if (mode === "band") { mk(c, "rect", { x: cx - sw / 2, y: top + 5, width: sw, height: 3, class: "capband" }); fluteTop = top + 14; }
+      mk(c, "rect", { x: cx - 31, y: base - 9, width: 62, height: 9, class: cls });
+      for (const fx of [-12, 0, 12]) mk(c, "line", { x1: cx + fx, x2: cx + fx, y1: fluteTop, y2: base - 15, class: "flute" + (t === "c" ? " fcf" : "") });
+      mk(c, "text", { x: cx, y: top - (mode === "abacus" ? 12 : 10), "text-anchor": "middle", class: "val" }, v.toFixed(1).replace(".", ","));
+      mk(c, "text", { x: cx, y: base + 30, "text-anchor": "middle", class: "wk" }, lab);
+    });
+    mk(c, "line", { x1: slot * 5, x2: slot * 5, y1: 20, y2: base, class: "today" });
+  }
+
+  /* Switches */
+  const root = document.documentElement;
+  /* Settled: order layout, paint on slabs (key number on orchid, AI forecast on bronze), abacus line on top of each column */
+  const st = { paint: "slabs", cap: "abacus" };
+  function apply() {
+    /* Settled: order layout */
+    root.dataset.lay = "order"; root.dataset.paint = st.paint;
+    drawColon(st.cap);
+    document.querySelectorAll(".grp").forEach((g) => g.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(st[g.dataset.key] === b.dataset.v))));
+    fixDots();
+  }
+  function fixDots() {
+    document.querySelectorAll(".inscr .ip").forEach((ip) => {
+      ip.classList.remove("eol"); let t = ip.nextSibling;
+      while (t && !(t.nodeType === 3 && t.textContent.trim())) t = t.nextSibling;
+      if (!t) return; const r = document.createRange(); r.setStart(t, 0); r.setEnd(t, 1);
+      if (r.getBoundingClientRect().top - ip.getBoundingClientRect().top > 4) ip.classList.add("eol");
+    });
+  }
+  document.querySelectorAll(".grp").forEach((g) => g.addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; st[g.dataset.key] = b.dataset.v; apply(); }));
+  window.addEventListener("resize", fixDots);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fixDots);
+  apply();
+})();
+</script>

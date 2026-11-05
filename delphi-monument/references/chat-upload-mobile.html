@@ -1,0 +1,434 @@
+<title>Delphi Монумент: экраны</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&display=swap">
+<style>
+/* Layout: three screens in the "Monument" direction, each with its own composition (no "text left, coloured card right"):
+   chat = one protocol column with the key figure inside the answer and an index of questions on the right;
+   upload = result first across the full width, clauses with the AI correction inline, files last;
+   mobile = one slab per screen. Slabs are paint (deep pigment, light text) or a dark slab with a paint edge (switch).
+   At most two meanders per screen; columns are marble (fact) or bronze (forecast) only. Dark-only for now. */
+:root {
+  color-scheme: dark;
+  --stone: #14171B; --slab1: #1C2025; --slab2: #22272D; --line: #353B43; --ink: #ECEDEA; --ink-2: #BCC0BB; --ink-3: #9AA09A;
+  --marble: #D9DBD7; --marble-dim: #8F948F;
+  --orchid: #E38FD9; --bronze: #E3A462;
+  --o-deep: #9B3590; --b-deep: #8C5524; --o-light: #FBEFF8; --b-light: #F8EEE2; --on-paint: #16181B;
+  --danger: #F08A80; --warn: #E3B158;
+  /* slab treatment: pigment (default) */
+  --o-bg: var(--o-deep); --o-fg: var(--o-light); --o-num: var(--o-light); --o-edge: 0px;
+  --b-bg: var(--b-deep); --b-fg: var(--b-light); --b-num: var(--b-light); --b-edge: 0px;
+  --carve: -.014em -.014em .004em rgba(0, 0, 0, .85), .015em .015em .004em rgba(255, 255, 255, .14);
+  --ch-bg: #0B0C0E; --ch-dim: #9EA19C;
+  --f-carve: "Forum", "Times New Roman", serif;
+  --f-book: "Literata", Georgia, "Times New Roman", serif;
+  --f-chrome: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+/* slab treatment: edge = dark slab, wide paint edge on top, number in paint */
+:root[data-slab="edge"] {
+  --o-bg: var(--slab2); --o-fg: var(--ink); --o-num: var(--orchid); --o-edge: 6px;
+  --b-bg: var(--slab2); --b-fg: var(--ink); --b-num: var(--bronze); --b-edge: 6px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--stone); color: var(--ink); font: 400 17px/1.55 var(--f-book); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ch-bg); }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* presentation chrome */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--ch-bg); color: #F2F2EF; font: 500 13px/1.2 var(--f-chrome); }
+.bar .in { max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; padding-block: 8px; }
+.bar a { color: var(--ch-dim); text-decoration: none; }
+.bar a:hover, .bar a:focus-visible { color: #fff; }
+.grp { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-left: auto; }
+.grp > span { color: var(--ch-dim); }
+.grp button { font: inherit; color: var(--ch-dim); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 0; cursor: pointer; }
+.grp button[aria-pressed="true"] { color: #fff; border-bottom-color: #fff; }
+.grp button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (max-width: 640px) { .bar { position: static; } .grp { margin-left: 0; } }
+.cap { max-width: 1280px; margin: 0 auto; padding-block: 34px 0; font: 500 13px/1.45 var(--f-chrome); color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.cap b { color: var(--ink); }
+.band + .band { border-top: 1px solid var(--line); margin-top: 24px; }
+
+.page { max-width: 1280px; margin: 0 auto; padding-block: 18px 40px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 28px; padding-bottom: 16px; position: relative; }
+.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px; border-top: 4px solid var(--ink); border-bottom: 1px solid var(--line); }
+.app { font: 400 28px/1 var(--f-carve); letter-spacing: .04em; text-transform: uppercase; }
+.nav { display: flex; flex-wrap: wrap; gap: 6px 26px; font-size: 17px; font-weight: 600; color: var(--ink-2); }
+.nav .on { color: var(--ink); text-decoration: underline; text-decoration-color: var(--bronze); text-decoration-thickness: 3px; text-underline-offset: 9px; }
+.where { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+.label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.label b { font-size: 19px; font-weight: 700; }
+.label span { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.inscr { margin: 0; font: 400 clamp(30px, 5vw, 68px)/1.04 var(--f-carve); text-transform: uppercase; letter-spacing: .03em; color: var(--orchid); text-shadow: var(--carve); text-wrap: balance; }
+.ip::before { content: "\00B7"; color: var(--bronze); padding: 0 .05em; }
+.ip.eol { visibility: hidden; }
+.thesis { margin: 0; font-size: clamp(20px, 2vw, 24px); line-height: 1.4; font-weight: 500; max-width: 46ch; }
+.thesis b { font-weight: 700; color: var(--orchid); }
+p { margin: 0; }
+.muted { color: var(--ink-2); }
+.who { font-size: 15px; font-weight: 700; color: var(--bronze); }
+.btn { font: 700 17px/1 var(--f-book); background: var(--ink); color: var(--on-paint); border: 0; padding: 17px 26px; cursor: pointer; }
+.btn.wide { width: 100%; }
+.link { font: 600 17px/1.3 var(--f-book); color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: currentColor; text-underline-offset: 6px; }
+:is(.btn, .link, input, select, .seg button, .chk input):focus-visible { outline: 3px solid var(--bronze); outline-offset: 3px; }
+.acts { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; }
+
+/* Slabs: paint as a material. Orchid = the key data of the screen, bronze = the AI voice. One of each per screen at most */
+.slab { padding: 22px 26px 24px; display: grid; gap: 8px; align-content: start; }
+.slab.o { background: var(--o-bg); color: var(--o-fg); border-top: var(--o-edge) solid var(--orchid); }
+.slab.b { background: var(--b-bg); color: var(--b-fg); border-top: var(--b-edge) solid var(--bronze); }
+.slab .k { font: 700 clamp(56px, 6vw, 92px)/.92 var(--f-book); letter-spacing: -.03em; font-variant-numeric: lining-nums; }
+.slab.o .k { color: var(--o-num); } .slab.b .k { color: var(--b-num); }
+.slab .t { font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+.slab.b .t { color: var(--b-num); }
+.slab p, .slab li { font-size: 17px; font-weight: 500; }
+.slab .btn { background: var(--o-light); color: var(--on-paint); }
+:root[data-slab="edge"] .slab .btn { background: var(--ink); }
+/* horizontal slab: figure on the left, meaning on the right, one band */
+.slab.band-h { grid-template-columns: auto minmax(0, 1fr); align-items: end; column-gap: 32px; }
+.slab.band-h .t { grid-column: 1 / -1; }
+
+/* meander and colonnade */
+.meander { width: 100%; height: auto; display: block; }
+.meander .rest { stroke: var(--line); }
+.meander .done { stroke: var(--orchid); }
+.meander.ai .done { stroke: var(--bronze); }
+.colon { width: 100%; height: auto; display: block; overflow: visible; }
+.colon .shaft { fill: var(--marble); }
+.colon .flute { stroke: var(--stone); stroke-width: 2.5; }
+.colon .stylo { fill: var(--line); }
+.colon .val { fill: var(--ink); font: 700 17px var(--f-book); }
+.colon .wk { fill: var(--ink-2); font: 500 14px var(--f-book); }
+.colon .mark { stroke: var(--ink-2); stroke-width: 2; stroke-dasharray: 4 5; }
+.colon .marklab { fill: var(--ink); font: 700 15px var(--f-book); }
+.colon .drop { fill: var(--orchid); font: 700 22px var(--f-book); }
+
+/* ---------- Chat: one protocol column + an index of the questions ---------- */
+.chat { display: grid; grid-template-columns: minmax(0, 9fr) minmax(0, 3fr); gap: 0 48px; margin-top: 30px; }
+.protocol { display: grid; gap: 0; min-width: 0; }
+.protocol .inscr { margin-bottom: 18px; }
+.turn { display: grid; gap: 14px; padding-block: 24px; border-top: 1px solid var(--line); }
+.q { font-size: 24px; font-weight: 700; line-height: 1.3; max-width: 40ch; }
+.meta { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.evidence { display: grid; gap: 8px; max-width: 640px; }
+.srcline { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.srcline b { color: var(--ink); font-weight: 600; }
+.ask { display: grid; gap: 10px; padding-top: 24px; border-top: 3px solid var(--ink); }
+.ask label { font-size: 17px; font-weight: 700; }
+.ask .row { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; }
+.ask input { flex: 1 1 260px; min-width: 0; font: 500 21px/1.3 var(--f-book); color: var(--ink); background: transparent; border: 0; border-bottom: 3px solid var(--ink); padding: 10px 0; caret-color: var(--bronze); }
+.ask input::placeholder { color: var(--ink-3); }
+.often { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 16px; color: var(--ink-2); }
+.often .link { font-size: 16px; font-weight: 500; }
+.index { border-left: 1px solid var(--line); padding-left: 24px; display: grid; gap: 14px; align-content: start; position: sticky; top: 64px; }
+.index ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.index li { display: grid; gap: 2px; }
+.index li b { font-size: 16px; font-weight: 600; }
+.index li span { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.index li.on b { text-decoration: underline; text-decoration-color: var(--bronze); text-decoration-thickness: 3px; text-underline-offset: 6px; }
+
+/* ---------- Upload: result first ---------- */
+.lead { display: grid; gap: 16px; margin-top: 30px; max-width: 1000px; }
+.result { margin-top: 26px; }
+.result .k { font-size: clamp(72px, 8vw, 120px); }
+.result .what { display: grid; gap: 6px; padding-bottom: 6px; }
+.result .what b { font-size: 22px; font-weight: 700; }
+.clauses { margin-top: 28px; display: grid; }
+.clause { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 4fr); gap: 12px 40px; padding-block: 22px; border-top: 1px solid var(--line); }
+.clause p { font-size: 18px; line-height: 1.6; }
+.clause .no { font-weight: 700; color: var(--ink-2); margin-right: .35em; }
+.clause mark { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--orchid); text-decoration-thickness: 3px; text-underline-offset: 5px; }
+.clause .slab { grid-column: 1 / -1; }
+.note { border-top: 3px solid var(--bronze); padding-top: 10px; display: grid; gap: 4px; font-size: 16px; color: var(--ink-2); }
+.note b { color: var(--ink); }
+.note.okn { border-top-color: var(--line); }
+.redline { font-size: 19px; line-height: 1.55; }
+.redline del { text-decoration-thickness: 2px; opacity: .75; }
+.redline ins { text-decoration: none; font-weight: 700; border-bottom: 2px solid currentColor; }
+.filesec { margin-top: 30px; padding-top: 22px; border-top: 3px solid var(--ink); display: grid; gap: 16px; }
+.dropline { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 18px 20px; border: 2px dashed var(--line); }
+.dropline b { font-size: 19px; }
+.files { margin: 0; padding: 0; list-style: none; display: grid; }
+.files li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px 24px; align-items: baseline; padding-block: 14px; border-bottom: 1px solid var(--line); }
+.files .name { font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
+.files .size { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.files .st { font-size: 16px; font-weight: 600; text-align: right; }
+.files .st.ok { color: var(--ink); } .files .st.ai { color: var(--bronze); } .files .st.err { color: var(--danger); }
+.files .meander, .files .fix { grid-column: 1 / -1; }
+.files .fix { font-size: 16px; color: var(--danger); }
+
+/* ---------- Mobile ---------- */
+.phones { display: grid; grid-template-columns: repeat(2, minmax(0, 390px)); gap: 40px; justify-content: start; margin-top: 26px; }
+.phone { border: 1px solid var(--line); padding: 18px 18px 26px; display: grid; gap: 20px; align-content: start; background: var(--stone); }
+.phone .top { padding-bottom: 14px; }
+.phone .top::after { height: 7px; border-top-width: 3px; }
+.phone .app { font-size: 22px; }
+.phone .where { font-size: 14px; }
+.phone .inscr { font-size: 30px; }
+.phone .slab { padding: 18px 18px 20px; }
+.phone .slab .k { font-size: 40px; }
+.step { display: grid; gap: 6px; }
+.step .label b { font-size: 16px; }
+.fld { display: grid; gap: 6px; }
+.fld label, .fld .l { font-size: 16px; font-weight: 700; }
+.fld input, .fld select { width: 100%; font: 500 19px/1.3 var(--f-book); color: var(--ink); background: transparent; border: 0; border-bottom: 3px solid var(--ink-2); border-radius: 0; padding: 8px 0; }
+.fld select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 10px) 55%, calc(100% - 4px) 55%; background-size: 6px 6px; background-repeat: no-repeat; }
+.fld select option { background: var(--stone); }
+.fld.err input { border-bottom-color: var(--danger); }
+.fld .msg { font-size: 15px; font-weight: 600; color: var(--danger); }
+.fld .hint { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.seg { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.seg button { font: 600 17px/1 var(--f-book); color: var(--ink-2); background: none; border: 0; border-bottom: 3px solid transparent; padding: 6px 0 8px; cursor: pointer; }
+.seg button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--orchid); }
+.chk { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 16px; font-weight: 500; }
+.chk input { appearance: none; width: 22px; height: 22px; margin: 1px 0 0; border: 2px solid var(--ink); background: transparent; display: grid; place-content: center; cursor: pointer; }
+.chk input:checked::before { content: ""; width: 12px; height: 12px; background: var(--orchid); }
+.next { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; font-size: 16px; color: var(--ink-2); }
+.next b { color: var(--ink); }
+.rules { display: grid; gap: 10px; max-width: 64ch; margin-top: 28px; }
+.rules p { color: var(--ink-2); font-size: 16px; }
+.rules b { color: var(--ink); }
+
+@media (max-width: 900px) {
+  .chat { grid-template-columns: minmax(0, 1fr); }
+  .index { border-left: 0; padding-left: 0; position: static; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 18px; }
+  .clause { grid-template-columns: minmax(0, 1fr); }
+  .slab.band-h { grid-template-columns: minmax(0, 1fr); }
+  .files li { grid-template-columns: minmax(0, 1fr); }
+  .files .st { text-align: left; }
+  .phones { grid-template-columns: minmax(0, 390px); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<nav class="bar gutter" aria-label="Экраны">
+  <div class="in">
+    <b>Delphi · монумент · экраны</b>
+    <a href="#chat">Чат с ИИ</a><a href="#upload">Загрузка и результат</a><a href="#mobile">Мобильная форма</a>
+  </div>
+</nav>
+
+<!-- ========== Chat ========== -->
+<section class="band gutter" id="chat" aria-labelledby="chat-h">
+  <div class="cap"><b>Экран 1 · Чат с ИИ</b><span>Одна колонка протокола. Главная цифра стоит внутри ответа, рядом с доказательством. Справа не карточка, а оглавление вопросов. Один меандр: ИИ сейчас считает.</span></div>
+  <div class="page">
+    <header class="top">
+      <span class="app">Касса</span>
+      <nav class="nav" aria-label="Разделы"><span>Продажи</span><span>Магазины</span><span class="on">Вопросы</span><span>Выгрузки</span></nav>
+      <span class="where">Алматы · 14 магазинов · октябрь 2026</span>
+    </header>
+    <div class="chat">
+      <div class="protocol">
+        <h1 class="inscr" id="chat-h">Вопросы<span class="ip"></span><wbr>к<span class="ip"></span><wbr>продажам</h1>
+        <div class="turn">
+          <span class="meta">Вы · 09:41</span>
+          <p class="q">Почему у магазина Абая, 12 упала выручка в октябре?</p>
+        </div>
+        <div class="turn">
+          <span class="who">Касса ИИ · ответ за 4 секунды</span>
+          <p class="thesis">Из-за ремонта улицы. С 14 октября вход со стороны Абая закрыт. Средний чек почти не изменился, а покупателей стало меньше.</p>
+          <div class="slab o band-h">
+            <span class="t">Главное в ответе</span>
+            <span class="k">−38%</span>
+            <p>чеков у Абая, 12 после 14 октября: было 1 400 в неделю, стало 865</p>
+          </div>
+          <div class="evidence">
+            <div class="label"><b>Чеков в неделю, Абая, 12</b><span>кассы, 1–28 октября</span></div>
+            <svg class="colon" id="chat-colon" viewBox="0 0 560 230" role="img" aria-label="Чеков в неделю: 1410, 1390, затем после ремонта 870 и 860"></svg>
+          </div>
+          <div class="slab b">
+            <span class="t">Что можно сделать</span>
+            <ol style="margin: 0; padding-left: 1.2em; display: grid; gap: 8px">
+              <li>Повесить указатель со стороны двора: вход с улицы Толе би открыт.</li>
+              <li>Включить доставку в радиусе 1 км до конца ремонта, 15 ноября.</li>
+            </ol>
+            <div class="acts"><button type="button" class="btn">Создать задачу управляющему</button></div>
+          </div>
+          <p class="srcline">Источники: <b>кассы 14 магазинов</b> (09:40) · <b>журнал ремонтов улиц</b>, акимат Алматы (12 октября)</p>
+        </div>
+        <div class="turn">
+          <span class="meta">Вы · 09:43</span>
+          <p class="q">Сравни с Жандосова, 58. Там тоже ремонт?</p>
+        </div>
+        <div class="turn" role="status">
+          <span class="who">Касса ИИ · считаю</span>
+          <p class="muted">Читаю кассы Жандосова, 58 за 31 день и журнал ремонтов улиц. Готово на 40%.</p>
+          <svg class="meander ai" data-pct="40" data-units="18" role="img" aria-label="Готово 40%"></svg>
+        </div>
+        <form class="ask" onsubmit="event.preventDefault()">
+          <label for="ask-in">Ваш вопрос</label>
+          <div class="row"><input id="ask-in" type="text" placeholder="Например: какие магазины выполнят план в ноябре?"><button type="submit" class="btn">Спросить</button></div>
+          <div class="often"><span>Часто спрашивают:</span><button type="button" class="link">Прогноз на ноябрь</button><button type="button" class="link">Лучший магазин месяца</button><button type="button" class="link">Где падает средний чек</button></div>
+        </form>
+      </div>
+      <aside class="index" aria-label="Вопросы в этом разговоре">
+        <div class="label"><b>В этом разговоре</b></div>
+        <ol>
+          <li><b>Выполним ли план октября?</b><span>09:32 · да, 97%</span></li>
+          <li><b>Какие магазины отстают?</b><span>09:36 · три магазина</span></li>
+          <li class="on"><b>Почему упала выручка Абая, 12?</b><span>09:41 · ремонт улицы</span></li>
+          <li><b>Сравни с Жандосова, 58</b><span>09:43 · считаю</span></li>
+        </ol>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Upload ========== -->
+<section class="band gutter" id="upload" aria-labelledby="up-h">
+  <div class="cap"><b>Экран 2 · Загрузка файла и результат</b><span>Сначала результат на всю ширину, потом пункты с правкой ИИ прямо под нужным пунктом, файлы в конце. Меандр только у файла, который сейчас читается.</span></div>
+  <div class="page">
+    <header class="top">
+      <span class="app">Сверка</span>
+      <nav class="nav" aria-label="Разделы"><span class="on">Договоры</span><span>Политики</span><span>Отчёты</span></nav>
+      <span class="where">ТОО «Арна Трейд» · закупки</span>
+    </header>
+    <div class="lead">
+      <h2 class="inscr" id="up-h">Сверка<span class="ip"></span><wbr>договора</h2>
+      <p class="thesis">Договор поставки № 118/26 расходится с политикой закупок в <b>двух пунктах</b>: цена и неустойка. Остальные 29 пунктов в порядке.</p>
+    </div>
+    <div class="slab o band-h result">
+      <span class="t">Расхождения · договор № 118/26</span>
+      <span class="k">2</span>
+      <div class="what">
+        <b>из 31 пункта</b>
+        <p>п. 4.2: поставщик меняет цену сам · п. 7.1: неустойка в 10 раз ниже порога</p>
+        <div class="acts" style="margin-top: 8px"><button type="button" class="btn">Скачать отчёт</button><button type="button" class="link">Сменить политику</button></div>
+      </div>
+    </div>
+    <div class="clauses">
+      <div class="clause">
+        <p><span class="no">4.2.</span>Поставщик вправе <mark>в одностороннем порядке изменить цену Товара</mark>, уведомив Покупателя за 5 календарных дней.</p>
+        <div class="note"><span class="who">Политика, п. 3.1</span><p>Цена меняется только <b>дополнительным соглашением</b>.</p></div>
+        <div class="slab b">
+          <span class="t">Правка от ИИ</span>
+          <p class="redline">Поставщик вправе <del>в одностороннем порядке</del> <ins>по письменному соглашению сторон</ins> изменить цену Товара.</p>
+          <p>Эту формулировку поставщики принимали в 9 из 11 прошлых договоров.</p>
+          <div class="acts"><button type="button" class="btn">Отправить правку поставщику</button></div>
+        </div>
+      </div>
+      <div class="clause">
+        <p><span class="no">7.1.</span>Неустойка за просрочку поставки <mark>0,01% от стоимости партии</mark> за каждый день.</p>
+        <div class="note"><span class="who">Политика, п. 5.4</span><p>Порог 0,1% в день. За 30 дней на партию 18 млн ₸ это <b>54 000 ₸</b> вместо 540 000 ₸.</p></div>
+      </div>
+      <div class="clause">
+        <p><span class="no">9.3.</span>Споры рассматриваются в экономическом суде города Алматы.</p>
+        <div class="note okn"><span class="muted">Политика, п. 8.2</span><p>Совпадает.</p></div>
+      </div>
+    </div>
+    <div class="filesec">
+      <div class="label"><b>Файлы</b><span>3 загружено сегодня</span></div>
+      <div class="dropline"><b>Перетащите ещё договоры сюда</b><span class="muted">PDF или DOCX до 20 МБ</span><button type="button" class="link">Выбрать файлы</button></div>
+      <ul class="files">
+        <li><span class="name">Договор поставки 118-26.pdf</span><span class="size">14 стр · 2,1 МБ</span><span class="st ok">Проверен · 2 расхождения</span></li>
+        <li><span class="name">Спецификация к договору.docx</span><span class="size">6 стр · 0,4 МБ</span><span class="st ai" role="status">ИИ читает: пункт 20 из 31</span>
+          <svg class="meander ai" data-pct="64" data-units="30" aria-hidden="true"></svg></li>
+        <li><span class="name">Акт сверки.xlsx</span><span class="size">1 лист · 0,1 МБ</span><span class="st err">Не загружен</span>
+          <span class="fix">Формат XLSX не поддерживается. Сохраните как PDF и загрузите снова.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Mobile ========== -->
+<section class="band gutter" id="mobile" aria-labelledby="m-h">
+  <div class="cap"><b>Экран 3 · Мобильная форма на казахском</b><span>На узком экране одна плита: расчёт или номер заявки. Прогноз ИИ на экране успеха стал пометкой с чертой бронзы.</span></div>
+  <div class="page">
+    <div class="phones">
+      <div class="phone">
+        <header class="top"><span class="app">Егін</span><span class="where">Сақталды, 09:40</span></header>
+        <h2 class="inscr" id="m-h">Субсидияға<span class="ip"></span><wbr>өтінім</h2>
+        <div class="step">
+          <div class="label"><b>3 қадамның 2-сі</b><span>Егістік туралы</span></div>
+          <svg class="meander" data-pct="66.7" data-units="9" role="img" aria-label="3 қадамның 2-сі"></svg>
+        </div>
+        <form style="display: grid; gap: 18px" onsubmit="event.preventDefault()">
+          <div class="fld"><label for="kz-name">Аты-жөні</label><input id="kz-name" type="text" value="Әлия Нұрланқызы Сейітқали"></div>
+          <div class="fld err"><label for="kz-iin">ЖСН</label><input id="kz-iin" inputmode="numeric" value="95031240118" aria-invalid="true" aria-describedby="kz-iin-m"><span class="msg" id="kz-iin-m">ЖСН 12 саннан тұрады. Сіз 11 сан енгіздіңіз.</span></div>
+          <div class="fld"><label for="kz-dist">Аудан</label><select id="kz-dist"><option>Еңбекшіқазақ ауданы</option><option>Талғар ауданы</option><option>Іле ауданы</option></select></div>
+          <div class="fld"><label for="kz-ha">Егіс алқабы, гектар</label><input id="kz-ha" inputmode="decimal" value="64,5"><span class="hint">Жер учаскесінің құжаты бойынша</span></div>
+          <div class="fld"><span class="l" id="kz-crop">Дақыл</span><div class="seg" role="group" aria-labelledby="kz-crop"><button type="button" aria-pressed="true">Бидай</button><button type="button" aria-pressed="false">Арпа</button><button type="button" aria-pressed="false">Күнбағыс</button></div></div>
+          <div class="slab o"><span class="t">Болжалды субсидия</span><span class="k">1 290 000 ₸</span><p>64,5 га × 20 000 ₸</p></div>
+          <label class="chk"><input type="checkbox" id="kz-ok" checked><span>Дербес деректерімді өңдеуге келісемін</span></label>
+          <button type="submit" class="btn wide">Келесі қадам</button>
+        </form>
+      </div>
+      <div class="phone">
+        <header class="top"><span class="app">Егін</span><span class="where">09:46</span></header>
+        <h2 class="inscr">Өтінім<span class="ip"></span><wbr>жіберілді</h2>
+        <div class="slab o"><span class="t">Өтінім нөмірі</span><span class="k">2026-4471</span><p>Бидай · 64,5 га · 1 290 000 ₸</p></div>
+        <div class="note"><span class="who">Болжам</span><p>Өтінім <b>5 жұмыс күні</b> ішінде қаралады. Шешім SMS арқылы келеді.</p></div>
+        <div class="label"><b>Келесі қадамдар</b></div>
+        <ol class="next">
+          <li><b>12 қарашаға дейін</b> аудандық ауыл шаруашылығы бөліміне хабарласыңыз.</li>
+          <li>Шешім келгенде ақша <b>3 жұмыс күні</b> ішінде шотқа түседі.</li>
+        </ol>
+        <button type="button" class="btn wide">Басты бетке оралу</button>
+      </div>
+    </div>
+    <div class="rules">
+      <p><b>Общие правила этих экранов.</b> Плиты — краска, а не пастель: глубокий пигмент со светлым текстом. Не больше одной плиты орхидеи и одной бронзы на экран, на телефоне одна. Композиция своя у каждого типа экрана, без «текст слева, карточка справа». Меандров не больше двух на экран. Колонны только мрамор (факт) и бронза (прогноз), внимание к значению — подписью.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  const ns = "http://www.w3.org/2000/svg";
+  const mk = (svg, tag, a, text) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; svg.appendChild(e); return e; };
+  let clipN = 0;
+  document.querySelectorAll("svg.meander").forEach((m) => {
+    const N = +m.dataset.units, U = 40, s = 2, W = U * N, pct = +m.dataset.pct / 100;
+    m.setAttribute("viewBox", "0 0 " + W + " 44");
+    let d = "M0 " + (2 + 19 * s) + " H" + W;
+    for (let i = 0; i < N; i++) { const o = i * U, y = 2; d += " M" + (o + s) + " " + (y + 19 * s) + " V" + (y + s) + " H" + (o + 19 * s) + " V" + (y + 15 * s) + " H" + (o + 7 * s) + " V" + (y + 7 * s) + " H" + (o + 13 * s) + " V" + (y + 11 * s); }
+    const id = "mclip" + (clipN++);
+    const defs = mk(m, "defs", {}); const cp = mk(defs, "clipPath", { id }); mk(cp, "rect", { x: 0, y: 0, width: W * pct, height: 44 });
+    mk(m, "path", { d, class: "rest", fill: "none", "stroke-width": 3, "stroke-linecap": "square" });
+    mk(m, "path", { d, class: "done", fill: "none", "stroke-width": 3, "stroke-linecap": "square", "clip-path": "url(#" + id + ")" });
+  });
+
+  /* Colonnade with abacus line, marble only; the drop is told by a mark and a label, not by colour */
+  (function () {
+    const svg = document.getElementById("chat-colon"), rows = [["1–7 окт", 1410], ["8–14", 1390], ["15–21", 870], ["22–28", 860]];
+    const W = 560, base = 180, k = 140 / 1600, slot = W / rows.length;
+    mk(svg, "rect", { x: 0, y: base, width: W, height: 6, class: "stylo" });
+    rows.forEach(([lab, v], i) => {
+      const cx = slot * i + slot / 2, top = base - v * k;
+      mk(svg, "rect", { x: cx - 22, y: top, width: 44, height: base - 8 - top, class: "shaft" });
+      mk(svg, "rect", { x: cx - 31, y: top - 1.5, width: 62, height: 3, class: "shaft" });
+      mk(svg, "rect", { x: cx - 30, y: base - 8, width: 60, height: 8, class: "shaft" });
+      for (const fx of [-11, 0, 11]) mk(svg, "line", { x1: cx + fx, x2: cx + fx, y1: top + 9, y2: base - 13, class: "flute" });
+      mk(svg, "text", { x: cx, y: top - 12, "text-anchor": "middle", class: "val" }, v.toLocaleString("ru-RU"));
+      mk(svg, "text", { x: cx, y: base + 28, "text-anchor": "middle", class: "wk" }, lab);
+    });
+    mk(svg, "line", { x1: slot * 2, x2: slot * 2, y1: 4, y2: base, class: "mark" });
+    mk(svg, "text", { x: slot * 2 + 8, y: 18, class: "marklab" }, "14 окт: ремонт улицы");
+    mk(svg, "text", { x: slot * 3, y: 46, "text-anchor": "middle", class: "drop" }, "−38%");
+  })();
+
+  const root = document.documentElement;
+  /* Settled: pigment slabs (the "edge" treatment was rejected as closer to slop) */
+  const st = { slab: "pigment" };
+  function apply() {
+    root.dataset.slab = st.slab;
+    document.querySelectorAll(".grp button").forEach((b) => b.setAttribute("aria-pressed", String(st.slab === b.dataset.v)));
+    try { localStorage.setItem("delphi-scr", JSON.stringify(st)); } catch (e) {}
+  }
+  document.querySelectorAll(".grp").forEach((g) => g.addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; st.slab = b.dataset.v; apply(); }));
+  function fixDots() {
+    document.querySelectorAll(".inscr .ip").forEach((ip) => {
+      ip.classList.remove("eol"); let t = ip.nextSibling;
+      while (t && !(t.nodeType === 3 && t.textContent.trim())) t = t.nextSibling;
+      if (!t) return; const r = document.createRange(); r.setStart(t, 0); r.setEnd(t, 1);
+      if (r.getBoundingClientRect().top - ip.getBoundingClientRect().top > 4) ip.classList.add("eol");
+    });
+  }
+  document.querySelectorAll(".seg").forEach((g) => g.addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; g.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); }));
+  window.addEventListener("resize", fixDots);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fixDots);
+  apply(); fixDots();
+})();
+</script>

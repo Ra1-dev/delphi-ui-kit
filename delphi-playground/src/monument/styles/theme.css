@@ -1,0 +1,47 @@
+/*
+  Delphi Monument theme for Tailwind CSS v4.1+.
+  It REPLACES Tailwind's defaults: the default palette, radii, shadows, blurs and font families are switched off,
+  so classes like bg-purple-500, rounded-xl, shadow-lg or font-sans do not exist in a Monument project.
+
+  Main CSS, in this order:
+    @import "tailwindcss";
+    @import "./monument/styles/theme.css";
+    @import "./monument/styles/monument.css";
+*/
+@theme inline {
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --blur-*: initial;
+  --font-*: initial;
+
+  /* surfaces and text */
+  --color-stone: var(--m-stone);
+  --color-slab: var(--m-slab);
+  --color-slab2: var(--m-slab2);
+  --color-line: var(--m-line);
+  --color-ink: var(--m-ink);
+  --color-ink2: var(--m-ink2);
+  --color-ink3: var(--m-ink3);
+  --color-marble: var(--m-marble);
+
+  /* roles */
+  --color-orchid: var(--m-orchid);   /* data that matters */
+  --color-bronze: var(--m-bronze);   /* AI voice and forecast */
+  --color-gold: var(--m-gold-text);  /* warnings */
+  --color-danger: var(--m-danger);   /* errors */
+  --color-ok: var(--m-ok);           /* success marks */
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* type */
+  --font-carve: var(--m-f-carve);    /* the inscription, app name, nothing else */
+  --font-book: var(--m-f-book);      /* everything else */
+
+  /* motion */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}

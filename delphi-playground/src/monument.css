@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "./monument/fonts/fonts.css";
+@import "./monument/styles/theme.css";
+@import "./monument/styles/monument.css";
