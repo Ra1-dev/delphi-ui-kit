@@ -7,6 +7,18 @@ description: Build or restyle any web UI, dashboard, AI chat, upload/result scre
 
 You are building a screen for team Delphi. The style is decided; your job is to apply it exactly, fast, and without AI-generated clichés. The rules are short and every one of them replaced something that looked like a template, so follow them over your own taste.
 
+## Mode: replace or preview
+Decide before touching anything. The human's words decide; when they are silent, it is **replace**.
+
+- **Replace** (default; "переделай", "переведи на Монумент", "РЕЖИМ: ЗАМЕНА"). The project's own design is removed and Monument becomes its only design, in the project's own folder:
+  - work on a new git branch `redesign/monument`, commit there in steps; never push, never merge into the main branch. Not a git repo: copy the folder to `<name>-before-monument` next to it first, then work in place;
+  - remove the old design completely: its CSS files, theme and Tailwind config colours, CSS variables, fonts and font links, UI kits (MUI, Ant, Chakra, Mantine, Bootstrap, shadcn styling), icon and toast libraries (uninstall unused packages), decorative images and dead CSS;
+  - every screen of the frontend is restyled, including login, settings, 404, empty and error states; no toggle between old and new design, no "legacy" copies;
+  - the running app is the result: no `monument-results/` folder. Before/after screenshots go next to the project, in `<name>-monument-shots/`, never into the repo.
+- **Preview** ("покажи, как будет", "в отдельной папке", "РЕЖИМ: ПРОСМОТР"). The project is not touched: copy it to `<name>-monument` next to it, restyle the copy, and build `monument-results/` in the copy: one double-click HTML page per screen with shared `assets/`, `states.html`, `index.html`, `screenshots/`.
+
+In both modes business logic, API calls, data handling and routing stay as they are, and the project's tests must keep passing.
+
 ## Do this first
 1. Read `rules/MONUMENT.md` (the system) and `rules/anti-slop.md` (what never to do, two layers).
 2. Decide for each screen: **showcase** (judges see it: dashboard, analysis result, AI answer, home, application result) or **workshop** (internal: settings, lists, admin, long forms, documents). Decide the theme: `night` (default) or `paper` (documents, print, light variant for playful topics).
@@ -34,9 +46,10 @@ You are building a screen for team Delphi. The style is decided; your job is to 
 - Mobile: check 375 px.
 
 ## Before you say "done"
-1. Run `node monument/scripts/check-monument.mjs <your sources>` (it reads .tsx, .html, .py, .j2 and other templates) and fix every finding. Zero is the bar. Run it on sources, not on built or generated pages.
-2. Walk the checklist in `rules/MONUMENT.md` §11.
-3. Do the anti-slop test at the end of `rules/anti-slop.md`.
-4. In the browser, check that the real fonts loaded: `document.fonts.check('16px Literata')` and `document.fonts.check('40px Forum')` are both true.
+1. Replace mode: search the sources for what is left of the old design (its class names, colour values, font names, CSS files nothing imports) and remove it.
+2. Run `node monument/scripts/check-monument.mjs <your sources>` (it reads .tsx, .html, .py, .j2 and other templates) and fix every finding. Zero is the bar. Run it on sources, not on built or generated pages.
+3. Walk the checklist in `rules/MONUMENT.md` §11.
+4. Do the anti-slop test at the end of `rules/anti-slop.md`.
+5. In the browser, check that the real fonts loaded: `document.fonts.check('16px Literata')` and `document.fonts.check('40px Forum')` are both true.
 
 If the human asks for something the rules ban (a gradient hero, rounded cards, a glowing button, emoji), say which rule it breaks and offer the Monument alternative; do it only if they insist.
