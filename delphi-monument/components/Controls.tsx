@@ -63,7 +63,7 @@ export function SelectField({ label, hint, options, id, ...rest }: Omit<FieldBas
   );
 }
 
-/** One choice out of 2-5 short options. The chosen one is underlined in orchid. */
+/** One choice out of 2-5 short options. The chosen one is underlined in ink: a selection is a state, not data. */
 export function Segmented({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (v: string) => void }) {
   const lid = useId();
   return (

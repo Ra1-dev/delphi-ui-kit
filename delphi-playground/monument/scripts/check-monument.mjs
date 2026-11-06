@@ -29,6 +29,7 @@ const LINE_RULES = [
   { id: "tiny-text", re: /\btext-(?:xs|\[(?:\d|1[0-3])px\])|font-size\s*:\s*(?:\d|1[0-3])px\b|fontSize\s*:\s*(?:\d|1[0-3])\b/g, why: "text under 14px; nothing significant is small" },
   { id: "paint-fill", re: /\bbg-(?:orchid|bronze|gold)\b|background(?:-color)?\s*:\s*var\(--m-(?:orchid|bronze|gold)\)/g, why: "paint as a fill; deep paint only through <Slab>, buttons are ink" },
   { id: "icon-lib", re: /from\s+["'](?:lucide-react|@heroicons\/[^"']+|react-icons\/[^"']+|@tabler\/icons-react|@phosphor-icons\/react|@mui\/icons-material)["']/g, why: "stock icon set; use words and museum labels" },
+  { id: "toast-lib", re: /from\s+["'](?:react-hot-toast|sonner|react-toastify|notistack|@radix-ui\/react-toast)["']/g, why: "toast library; answer an action with <Done> where it was pressed" },
   { id: "emoji", re: /\p{Extended_Pictographic}/gu, why: "emoji or pictograph in UI or copy" },
   { id: "arrow-cta", re: /[→⟶➜➔↗]/g, why: "arrow as decoration; buttons say what happens in words" },
   { id: "dead-link", re: /href=\{?["']#?["']\}?/g, why: "dead link; link to a real page or render text" },

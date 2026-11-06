@@ -11,21 +11,24 @@ Delphi is a hackathon team. Monument is its visual style: a museum of data, dark
 
 A hackathon demo is usually 3-5 showcase screens. Do not dress a settings page as a monument.
 
-**Light variant** for non-serious topics (food, sport, students, entertainment): `data-theme="paper"`, no Forum, no Greek signs (no inscription, meander, colonnade). Keep Literata big and bold, orchid on data and selection, bronze on the AI hint, one pigment slab per screen, sharp corners. See `references/workshop-report-light.html` §3.
+**Light variant** for non-serious topics (food, sport, students, entertainment): `data-theme="paper"`, no Forum, no Greek signs (no inscription, meander, colonnade). Keep Literata big and bold, orchid on data, ink on selection, bronze on the AI hint, one pigment slab per screen, sharp corners. See `references/workshop-report-light.html` §3.
+
+**Product without AI** (a converter, a calculator, a catalogue): there is no AI voice, so there is no bronze slab, no AI margin note and no bronze meander. Bronze stays only where the kit puts it by itself (interpuncts, active nav underline). Do not invent an "AI" to use the bronze. Progress of the product's own work is orchid.
 
 ## 2. Theme
 - Dark (`night`) is the default and the main theme. `paper` (light) is for documents, reports, printing and the light variant. Set `<html data-theme="night|paper">`.
+- One theme per screen, decided by the screen's job: an app may show its document editor on `paper` and everything else on `night`. Switch `data-theme` on `<html>` when that screen opens, never inside one screen.
 - Background is flat stone. No textures, veins, ornaments, gradients, glow, blobs or patterns behind content.
 
 ## 3. Colour law: roles, never hues
 | Role | Token / class | Where |
 |---|---|---|
-| **orchid** | `--m-orchid`, `text-orchid` | the data that matters: the inscription, key facts in the thesis (`<b>`), lagging rows, selected item, data progress (meander), checked box |
+| **orchid** | `--m-orchid`, `text-orchid` | the data that matters: the inscription, key facts in the thesis (`<b>`), lagging rows, data progress (meander) |
 | **bronze** | `--m-bronze`, `text-bronze` | the voice of the AI and the forecast: AI notes, "who" labels, forecast columns and lines, AI-at-work meander, interpuncts, active nav underline |
 | **gold** | `--m-gold` | warnings only (`Alert kind="warn"`, `StatusMark kind="warn"`) |
 | **danger** | `--m-danger` | errors only |
 | **ok** | `--m-ok` | success marks only |
-| ink / stone / line | everything else | text, buttons, links, focus, rules |
+| ink / stone / line | everything else | text, buttons, links, focus, rules, and every selection: checked box, open tab, chosen segment (a selection is a state, not data) |
 
 - **Pigment slabs** (`Slab`): deep orchid `#9B3590` or deep bronze `#8C5524` with light text. **At most one orchid and one bronze slab per screen; one in total on a phone.** When a desktop screen has both, mark the secondary one `mobile="note"` (`data-mobile="note"` in HTML): on phones it turns into a margin note by itself. Never pastel, never a grid of slabs, never a dark slab with a coloured edge.
 - **Severity of data is not a system state.** A high-severity finding, defect or risk is data that matters: `StatusMark kind="attention"` (orchid). Medium and low: `kind="neutral"`. Red (`danger`) only means the system or an operation failed; gold only means the user must act on a system warning.
@@ -47,25 +50,28 @@ A hackathon demo is usually 3-5 showcase screens. Do not dress a settings page a
 
 - **Significant things are big and bold.** The key number, the thought and the actions must not be set in the same small size as everything else: that is the main sign of AI slop. Minimum 14 px anywhere.
 - Fonts support Kazakh (ә ғ қ ң ө ұ ү һ і). Do not add fonts. Never Inter, Geist, Roboto, Space Grotesk, Poppins, Montserrat, Onest, Oswald.
+- Source code and raw Markdown in an editor may use the system monospace (`ui-monospace, Consolas, monospace`), only inside the editing area. Everything around it is Literata.
 - Numbers in tables: tabular figures (`data-num`, `.m-num`).
 
 ## 5. Composition
-- Header: `AppHeader` (app name in Forum, nav, context) with the cornice profile. Footer: `Base` (stepped base). Web apps and landings: links to «Условия» and «Конфиденциальность» when those pages exist. Generated offline reports and documents: the footer names the source, the date and the generator instead.
+- Header: `AppHeader` (app name in Forum, nav, context) with the cornice profile. Footer: `Base` (stepped base). Web apps and landings: links to «Условия» and «Конфиденциальность» when those pages exist. Generated offline reports and documents: the footer names the source, the date and the generator instead. Desktop apps: version and licences.
 - Grid: `Grid` of `Bay`s, 12 columns, bays divided by rules, not boxes. No cards with borders or backgrounds except slabs.
 - **Never "text on the left, a coloured card on the right".** Each screen type has its own composition:
   - **Dashboard:** key figure band (orchid slab, `band`) above the inscription → inscription + thesis + actions → plan meander → colonnade full width with the AI forecast band (bronze slab) under it → table (8) + AI margin note (4).
   - **AI chat:** one protocol column (9) + an index of the questions asked (3). A question is a heading (`Question`), an answer is an exhibit: thesis → orchid band with the key figure → evidence (colonnade or table) → bronze slab with what to do → a line of sources. The AI at work: bronze meander. No bubbles, no avatars.
   - **Upload + result:** inscription + thesis → result as a full-width orchid band with actions → items with AI margin notes → files last; meander only on the file being processed. The AI correction: with **one to three** flagged items, a bronze slab right under the item it fixes; with **more items**, one bronze slab summarises all corrections (count, what kind, one action) and each item carries its own correction as a `MarginNote` with a `Redline` inside.
-  - **Review queue** (one item at a time, accept/reject): workshop layer; the item in 8 columns, the reviewer panel in 4, decisions in a bar at the bottom. No slabs.
+  - **Review queue** (one item at a time, accept/reject): workshop layer; the item in 8 columns, the reviewer panel in 4, decisions in the `Dock` at the bottom. No slabs.
   - **Mobile form:** inscription → step meander → fields → one slab (the calculation) → full-width button. Success screen: one slab with the number; the AI forecast as a margin note.
   - **Document / report** (paper): one inscription on the title, a definition list of period/source/author, thesis, key figures as a row under an orchid rule, colonnade in dark stone, AI comment in the margin, warnings with a gold rule, page footer.
+- **Slab content:** the figure carries its own denominator or unit (`8 из 9`, `421,1 млн ₸`), not a bare number; one sentence of meaning; at most two actions. The thesis and the slab never repeat the same number: the thesis says what it means, the slab shows it.
+- **Lists and queues:** at most one visible action per row (the most likely one, as a link). Other actions act on the selected rows from one bar above the table. Three underlined links in every row read as a stock admin table.
 - Wide paint bands: at most two per screen.
 
 ## 6. The signs: reinterpreted Greek forms that do a job
 | Sign | Component | Rule |
 |---|---|---|
 | Interpunct · | inside `Inscription` | only in the inscription; never ends a line (handled) |
-| Meander = progress | `Meander` | plan completion, file processing, AI at work, form steps. **At most two per screen.** Orchid = data/steps, bronze = AI working, danger = failed. The number of key units follows the width by itself; do not hard-code it. Narrower than ~200 px use `ProgressBar` |
+| Meander = progress | `Meander` | plan completion, file processing, AI at work, form steps. **At most two per screen.** Orchid = data/steps, bronze = AI working, danger = failed. The number of key units follows the width by itself; do not hard-code it. Narrower than ~200 px use `ProgressBar`. Draw it only from a real fraction (done steps / all steps, bytes, files): if the work reports no progress, say what is happening in words and show no meander. When the work is finished the meander goes away and the result takes its place: a full meander is an ornament |
 | Colonnade = bar chart | `Colonnade` | **3-10 values** of **similar magnitude** (a time series, comparable periods). Counts per category with a long tail (e.g. 2 … 170) make stubs: use a ranked table with `ProgressBar` instead. Longer series use a line. Marble = fact, dim marble = incomplete period, bronze = forecast. Abacus line on top = exactly the value. It sizes itself (78-130 px per column) and scrolls inside its block on narrow screens. Show attention with `mark` or `callout`, never a coloured column |
 | Cornice | `AppHeader` | thick + thin rule under the header |
 | Stepped base | `Base` | three rules under the page |
@@ -91,16 +97,23 @@ No other ornaments: no meander as a border or background, no columns as decorati
 | Action | `Button` (ink), `Button variant="secondary"`, `LinkButton` |
 | Inputs | `TextField`, `TextArea`, `SelectField`, `Segmented`, `Checkbox` |
 | Warning / error | `Alert kind="warn"` (gold) / `kind="error"`; in cells `StatusMark` (`ok`, `warn`, `error` for system states; `attention`, `neutral` for severity of data) |
-| Browser `alert()` / `confirm()` | never: show an `Alert` inside the page, and confirm with a second button |
+| Tabs (open documents, sections of settings) | `Tabs`: the open tab underlined in ink |
+| Modal window (a reference, a form that must keep the page) | `Dialog` on the native `<dialog>`: thin frame, cornice on top, flat dimmed backdrop; a sheet from the bottom on phones |
+| The answer to a successful action ("Сохранено") | `Done` in place of the pressed button for 8 s (`useDone`), with the next step ("Открыть папку"). Never a toast in a corner |
+| Actions on checked rows, and their confirmation | `SelectionBar` above the table; a destructive action turns the bar into the question with its consequence and the verb with the count |
+| Decisions in a review queue (accept / reject, many in a row) | `Dock`: sticky bar at the bottom with the cornice. Only for review queues |
+| Browser `alert()` / `confirm()` | never: errors are an `Alert` where it broke, confirmations go into the `SelectionBar` or a `Dialog` |
 
-Missing something (modal, tabs, menu, date picker)? Build it from these classes and tokens without inventing new colours, signs, radii, shadows or effects. List it in your report as a **kit candidate** (see `proposals/README.md`).
+Missing something (menu, date picker, map)? Build it from these classes and tokens without inventing new colours, signs, radii, shadows or effects. List it in your report as a **kit candidate** (see `proposals/README.md`).
 
 Plain HTML without React or server templates (Python, Jinja, ERB…): use the same classes, include `vanilla/monument.js`, see its header for markup. It is safe to inline into a single-file page.
 
 **Self-contained results** (pages a client opens by double-click): link `monument.css`, `fonts/` and `monument.js` from one shared `assets/` folder by relative path. Do not inline the fonts into every page: one page then weighs megabytes.
 
+**Fonts under a strict CSP or a server that serves a fixed list of files** (desktop shells, pywebview, Electron, embedded backends): `fonts.css` then fails silently and the page falls back to Times. Run `node monument/scripts/inline-fonts.mjs <out.css>`: it writes the same `@font-face` rules with the fonts as data URIs (about 400 KB), which pass `default-src 'self'` when `font-src data:` is allowed, and need no extra files. Then check in the browser that `document.fonts.check('16px Literata')` is true.
+
 ## 8. States (mandatory)
-Every data block whose data arrives at runtime has five states at the **same height** (`DataState`). A static generated report has no loading state: it shows ready, partial or empty only. The states: loading (bronze meander + what is being done), empty (what is missing + one action), error (what broke + code + last known value + retry), partial (data + gold "Данные неполные" alert), ready. Buttons: default, hover, focus-visible, disabled, loading (`loading="Считаем…"`). Fields: rest, focus, error with a fix-it message.
+Every data block whose data arrives at runtime has five states at the **same height** (`DataState`). A static generated report has no loading state: it shows ready, partial or empty only. The states: loading (meander + what is being done; bronze when the AI is working, orchid for the product's own work: `loading={{ tone: "data" }}`), empty (what is missing + one action), error (what broke + code + last known value + retry), partial (data + gold "Данные неполные" alert), ready. Buttons: default, hover, focus-visible, disabled, loading (`loading="Считаем…"`). Fields: rest, focus, error with a fix-it message.
 
 ## 9. Motion
 Quiet. Tokens `--m-d-fast` 120 ms, `--m-d-base` 240 ms, `--m-d-slow` 480 ms, easing `--m-e-out`. Hover changes only colour or underline of clickable things: no lift, scale, glow or shadow. Respect `prefers-reduced-motion` (built in). No entrance choreography on every block.
@@ -120,4 +133,5 @@ Quiet. Tokens `--m-d-fast` 120 ms, `--m-d-base` 240 ms, `--m-d-slow` 480 ms, eas
 - [ ] Every data block has its five states.
 - [ ] Nothing significant is small: key number, thesis and actions stand out by size and weight.
 - [ ] Works at 375 px with no horizontal page scroll (tables scroll inside `.m-tw`).
-- [ ] Footer per §5 (legal links for web apps, source and date for offline reports); no dead links in the final build.
+- [ ] Footer per §5 (legal links for web apps, source and date for offline reports, version and licences for desktop apps); no dead links in the final build.
+- [ ] Fonts really load: Forum and Literata, not fallbacks (`document.fonts.check`).

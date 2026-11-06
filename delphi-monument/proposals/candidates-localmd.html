@@ -1,0 +1,619 @@
+<title>Кандидаты Монумента</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Literata:opsz,wght@7..72,400..700&subset=cyrillic,cyrillic-ext,latin,latin-ext&display=swap">
+<style>
+/*
+  Delphi Monument: tokens and base classes.
+  Dark ("night") is the default theme. "paper" is the light theme for documents, reports and the light variant.
+  Two layers: showcase (default scale) and workshop (add .m-dense to a container: smaller type, tighter rows).
+
+  Colour roles, never by hue:
+    orchid  = the data that matters (key figure, lagging rows, selected item, data progress)
+    bronze  = the voice of the AI and the forecast (AI notes, forecast line/columns, AI progress, active nav)
+    gold    = warnings only
+    danger  = errors only
+    ok      = success marks only
+  Buttons, links and focus are ink. Paint never fills a button.
+
+  This file and theme.css are the only places where raw colours may live.
+*/
+
+:root,
+[data-theme="night"] {
+  color-scheme: dark;
+  --m-stone: #14171B;      /* page */
+  --m-slab: #1C2025;       /* quiet surface */
+  --m-slab2: #22272D;      /* recessed band, track of bars */
+  --m-line: #353B43;
+  --m-ink: #ECEDEA;
+  --m-ink2: #BCC0BB;       /* secondary text, still readable */
+  --m-ink3: #9AA09A;       /* placeholders only */
+  --m-marble: #D9DBD7;     /* fact columns */
+  --m-marble-dim: #8F948F; /* incomplete period */
+  --m-orchid: #E38FD9;
+  --m-bronze: #E3A462;
+  --m-gold: #F5D547;
+  --m-gold-text: #F5D547;
+  --m-danger: #F08A80;
+  --m-ok: #8FD3A8;
+  /* pigment slabs: deep paint with light text */
+  --m-o-deep: #9B3590;
+  --m-b-deep: #8C5524;
+  --m-o-light: #FBEFF8;
+  --m-b-light: #F8EEE2;
+  --m-on-ink: #16181B;     /* text on an ink button */
+  --m-carve: -.014em -.014em .004em rgba(0, 0, 0, .85), .015em .015em .004em rgba(255, 255, 255, .14);
+
+  --m-f-carve: "Forum", "Times New Roman", serif;
+  --m-f-book: "Literata", Georgia, "Times New Roman", serif;
+
+  /* type scale, showcase layer */
+  --m-t-body: 17px;
+  --m-t-meta: 15px;
+  --m-t-label: 19px;
+  --m-t-q: 23px;
+  --m-t-thesis: clamp(20px, 2vw, 25px);
+  --m-t-inscr: clamp(30px, 5.4vw, 76px);
+  --m-t-key: clamp(64px, 7vw, 104px);
+  --m-t-fig: clamp(36px, 3.4vw, 48px);
+  --m-row: 13px;           /* table cell vertical padding */
+  --m-pad: 28px;           /* bay padding */
+
+  /* motion */
+  --m-d-fast: 120ms; --m-d-base: 240ms; --m-d-slow: 480ms;
+  --m-e-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+[data-theme="paper"] {
+  color-scheme: light;
+  --m-stone: #F4F3EF;
+  --m-slab: #ECEBE6;
+  --m-slab2: #E2E1DB;
+  --m-line: #CFCDC7;
+  --m-ink: #1B1D20;
+  --m-ink2: #4A4D52;
+  --m-ink3: #6B6E73;
+  --m-marble: #3A3D42;     /* on paper the columns are dark stone */
+  --m-marble-dim: #9C9EA2;
+  --m-orchid: #9B3590;
+  --m-bronze: #8C5524;
+  --m-gold: #E2B600;
+  --m-gold-text: #6E5000;
+  --m-danger: #B3261E;
+  --m-ok: #2E6A44;
+  --m-on-ink: #F4F3EF;
+  --m-carve: -.014em -.014em .004em rgba(0, 0, 0, .3), .017em .017em .005em rgba(255, 255, 255, .9);
+}
+
+/* Workshop layer: internal screens, long forms, admin tables */
+.m-dense {
+  --m-t-body: 15px;
+  --m-t-meta: 14px;
+  --m-t-label: 16px;
+  --m-t-thesis: 19px;
+  --m-t-fig: 30px;
+  --m-row: 9px;
+  --m-pad: 18px;
+}
+
+/* ---------- base ---------- */
+.m-root { background: var(--m-stone); color: var(--m-ink); font: 400 var(--m-t-body)/1.55 var(--m-f-book); -webkit-font-smoothing: antialiased; }
+.m-root *, .m-root *::before, .m-root *::after { box-sizing: border-box; }
+.m-root p { margin: 0; }
+.m-page { max-width: 1280px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); }
+.m-num { font-variant-numeric: tabular-nums lining-nums; }
+.m-muted { color: var(--m-ink2); }
+
+/* ---------- header with a cornice profile (thick rule + thin rule) ---------- */
+.m-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 28px; padding-bottom: 16px; position: relative; }
+.m-top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px; border-top: 4px solid var(--m-ink); border-bottom: 1px solid var(--m-line); }
+.m-dense .m-top::after { height: 8px; border-top-width: 3px; }
+.m-app { font: 400 28px/1 var(--m-f-carve); letter-spacing: .04em; text-transform: uppercase; color: var(--m-ink); }
+.m-nav { display: flex; flex-wrap: wrap; gap: 6px 26px; font-size: 17px; font-weight: 600; color: var(--m-ink2); }
+.m-nav a { color: inherit; text-decoration: none; }
+.m-nav a:hover { color: var(--m-ink); }
+.m-nav [aria-current="page"] { color: var(--m-ink); text-decoration: underline; text-decoration-color: var(--m-bronze); text-decoration-thickness: 3px; text-underline-offset: 9px; }
+.m-context { font-size: var(--m-t-meta); font-weight: 500; color: var(--m-ink2); }
+
+/* ---------- the inscription: one per screen, Forum capitals, interpuncts in bronze ---------- */
+.m-inscr { margin: 0; font: 400 var(--m-t-inscr)/1.04 var(--m-f-carve); text-transform: uppercase; letter-spacing: .03em; color: var(--m-orchid); text-shadow: var(--m-carve); text-wrap: balance; }
+.m-ip::before { content: "\00B7"; color: var(--m-bronze); padding: 0 .05em; }
+.m-ip[data-eol="true"] { visibility: hidden; }
+
+/* ---------- text roles ---------- */
+.m-thesis { margin: 0; font-size: var(--m-t-thesis); line-height: 1.4; font-weight: 500; max-width: 46ch; }
+.m-thesis b, .m-thesis strong { font-weight: 700; color: var(--m-orchid); }
+.m-q { font-size: var(--m-t-q); font-weight: 700; line-height: 1.3; max-width: 40ch; }
+.m-meta { font-size: var(--m-t-meta); font-weight: 500; color: var(--m-ink2); }
+.m-h { margin: 0; font: 700 30px/1.15 var(--m-f-book); }               /* workshop page title */
+.m-h2 { margin: 0; font: 700 22px/1.25 var(--m-f-book); }
+/* museum label: what this is · where it comes from · when */
+.m-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.m-label > b { font-size: var(--m-t-label); font-weight: 700; color: var(--m-ink); }
+.m-label > span { font-size: var(--m-t-meta); font-weight: 500; color: var(--m-ink2); }
+.m-who { font-size: var(--m-t-meta); font-weight: 700; color: var(--m-bronze); }
+
+/* ---------- actions: ink only ---------- */
+.m-btn { font: 700 17px/1 var(--m-f-book); background: var(--m-ink); color: var(--m-on-ink); border: 0; border-radius: 0; padding: 17px 26px; cursor: pointer; transition: opacity var(--m-d-fast); }
+.m-btn:hover { opacity: .88; }
+.m-btn:disabled { opacity: .45; cursor: not-allowed; }
+.m-btn[data-variant="secondary"] { background: transparent; color: var(--m-ink); outline: 2px solid var(--m-line); outline-offset: -2px; }
+.m-btn[data-wide="true"] { width: 100%; }
+.m-dense .m-btn { font-size: 16px; padding: 13px 20px; }
+.m-link { font: 600 17px/1.3 var(--m-f-book); color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: currentColor; text-underline-offset: 6px; }
+.m-root :is(.m-btn, .m-link, input, select, textarea, button, a):focus-visible { outline: 3px solid var(--m-bronze); outline-offset: 3px; }
+.m-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; }
+
+/* ---------- slabs: paint as a material. Max one orchid + one bronze per screen ---------- */
+.m-slab { padding: 22px 26px 24px; display: grid; gap: 8px; align-content: start; }
+.m-slab[data-tone="orchid"] { background: var(--m-o-deep); color: var(--m-o-light); }
+.m-slab[data-tone="bronze"] { background: var(--m-b-deep); color: var(--m-b-light); }
+.m-slab .m-slab-t { font-size: 15px; font-weight: 700; }
+.m-slab .m-slab-k { font: 700 var(--m-t-key)/.92 var(--m-f-book); letter-spacing: -.03em; font-variant-numeric: lining-nums; }
+.m-slab p, .m-slab li { font-size: 17px; font-weight: 500; }
+.m-slab .m-btn { background: var(--m-o-light); color: #16181B; }
+.m-slab[data-band="true"] { grid-template-columns: auto minmax(0, 1fr); align-items: end; column-gap: 32px; }
+.m-slab[data-band="true"] .m-slab-t { grid-column: 1 / -1; }
+.m-slab .m-slab-body { display: grid; gap: 6px; padding-bottom: 8px; max-width: 62ch; }
+.m-slab .m-slab-body > b { font-size: 22px; font-weight: 700; }
+
+/* ---------- margin note: the AI comment next to what it explains ---------- */
+.m-note { border-top: 3px solid var(--m-bronze); padding-top: 10px; display: grid; gap: 4px; font-size: var(--m-t-meta); color: var(--m-ink2); }
+.m-note > .m-who { margin-bottom: 2px; }
+.m-note b, .m-note strong { color: var(--m-ink); }
+.m-note[data-tone="neutral"] { border-top-color: var(--m-line); }
+.m-note[data-tone="neutral"] > .m-who { color: var(--m-ink2); }
+
+/* ---------- system states: warnings gold, errors danger, success ok ---------- */
+.m-alert { border-left: 4px solid var(--m-gold); padding: 8px 0 8px 14px; display: grid; gap: 2px; font-size: var(--m-t-meta); color: var(--m-ink2); }
+.m-alert > b { color: var(--m-gold-text); font-weight: 700; }
+.m-alert[data-kind="error"] { border-left-color: var(--m-danger); }
+.m-alert[data-kind="error"] > b { color: var(--m-danger); }
+.m-status { font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; color: var(--m-ink); }
+.m-status::before { content: ""; width: 4px; height: 16px; background: var(--m-ok); flex: none; }
+.m-status[data-kind="warn"] { color: var(--m-gold-text); } .m-status[data-kind="warn"]::before { background: var(--m-gold); }
+.m-status[data-kind="error"] { color: var(--m-danger); } .m-status[data-kind="error"]::before { background: var(--m-danger); }
+.m-status[data-kind="neutral"] { color: var(--m-ink2); } .m-status[data-kind="neutral"]::before { background: var(--m-line); }
+.m-status[data-kind="attention"] { color: var(--m-orchid); } .m-status[data-kind="attention"]::before { background: var(--m-orchid); }
+
+/* ---------- inline correction: removed text struck through, inserted text in bronze (the AI voice) ---------- */
+.m-redline { font-size: 18px; line-height: 1.55; }
+.m-redline del { text-decoration-thickness: 2px; opacity: .75; }
+.m-redline ins { text-decoration: none; font-weight: 700; color: var(--m-bronze); border-bottom: 2px solid currentColor; }
+.m-slab .m-redline ins { color: inherit; }
+
+/* ---------- fields: writing on a line ---------- */
+.m-field { display: grid; gap: 6px; min-width: 0; }
+.m-field > label, .m-field > .m-field-l { font-size: 16px; font-weight: 700; }
+.m-field :is(input, select, textarea) { width: 100%; font: 500 19px/1.3 var(--m-f-book); color: var(--m-ink); background: transparent; border: 0; border-bottom: 3px solid var(--m-ink2); border-radius: 0; padding: 8px 0; caret-color: var(--m-bronze); }
+.m-field textarea { resize: vertical; min-height: 96px; }
+.m-field :is(input, textarea)::placeholder { color: var(--m-ink3); }
+.m-field select { appearance: none; padding-right: 22px; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 10px) 55%, calc(100% - 4px) 55%; background-size: 6px 6px; background-repeat: no-repeat; }
+.m-field select { min-width: 160px; }
+.m-field select option { background: var(--m-stone); color: var(--m-ink); }
+.m-field[data-state="error"] :is(input, select, textarea) { border-bottom-color: var(--m-danger); }
+.m-field .m-field-msg { font-size: 15px; font-weight: 600; color: var(--m-danger); }
+.m-field .m-field-hint { font-size: 15px; font-weight: 500; color: var(--m-ink2); }
+.m-dense .m-field > label, .m-dense .m-field > .m-field-l { font-size: 14px; }
+.m-dense .m-field :is(input, select, textarea) { font-size: 16px; border-bottom-width: 2px; padding: 5px 0; }
+.m-seg { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.m-seg button { font: 600 17px/1 var(--m-f-book); color: var(--m-ink2); background: none; border: 0; border-bottom: 3px solid transparent; padding: 6px 0 8px; cursor: pointer; }
+.m-seg button[aria-pressed="true"] { color: var(--m-ink); border-bottom-color: var(--m-orchid); }
+.m-check { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 16px; font-weight: 500; cursor: pointer; }
+.m-check input { appearance: none; width: 22px; height: 22px; margin: 1px 0 0; border: 2px solid var(--m-ink); border-radius: 0; background: transparent; display: grid; place-content: center; cursor: pointer; }
+.m-check input:checked::before { content: ""; width: 12px; height: 12px; background: var(--m-ink); }
+
+/* ---------- tables ---------- */
+.m-tw { overflow-x: auto; }
+.m-table { width: 100%; border-collapse: collapse; font-size: var(--m-t-body); }
+.m-table th { text-align: left; font-size: var(--m-t-meta); font-weight: 600; color: var(--m-ink2); padding: 0 14px 10px 0; border-bottom: 3px solid var(--m-ink); white-space: nowrap; }
+.m-table td { padding: var(--m-row) 14px var(--m-row) 0; border-bottom: 1px solid var(--m-line); vertical-align: middle; }
+.m-table :is(th, td):last-child { padding-right: 0; }
+.m-table :is(th, td)[data-num] { text-align: right; font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.m-table td[data-num] { font-weight: 700; }
+.m-table td small { display: block; font-size: 14px; font-weight: 500; color: var(--m-ink2); }
+.m-table tr[data-attention] :is(td:first-child, td[data-key]) { color: var(--m-orchid); font-weight: 700; }
+
+/* ---------- plain progress bar (workshop, rows, anything narrower than 200px) ---------- */
+.m-bar { display: inline-grid; grid-template-columns: 90px auto; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.m-bar > i { display: block; height: 6px; background: var(--m-slab2); position: relative; }
+.m-bar > i > b { position: absolute; inset: 0 auto 0 0; background: var(--m-ink2); }
+
+/* ---------- order grid: 12 columns, bays divided by rules ---------- */
+.m-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); margin-top: 26px; }
+.m-bay { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 14px; padding: var(--m-pad) var(--m-pad) calc(var(--m-pad) + 4px); border-top: 1px solid var(--m-line); grid-column: span 12; }
+.m-bay[data-span="8"] { grid-column: span 8; } .m-bay[data-span="7"] { grid-column: span 7; } .m-bay[data-span="6"] { grid-column: span 6; }
+.m-bay[data-span="5"] { grid-column: span 5; } .m-bay[data-span="4"] { grid-column: span 4; }
+.m-bay[data-first] { padding-left: 0; }
+.m-bay[data-side] { border-left: 1px solid var(--m-line); padding-right: 0; }
+.m-bay[data-span="12"], .m-bay:not([data-span]) { padding-left: 0; padding-right: 0; }
+
+/* ---------- stepped base under the page (krepidoma) ---------- */
+.m-base { margin-top: 26px; display: grid; justify-items: center; }
+.m-base > i { display: block; height: 0; border-top: 2px solid var(--m-line); margin-top: 5px; }
+.m-base > i:nth-child(1) { width: 96%; } .m-base > i:nth-child(2) { width: 98%; } .m-base > i:nth-child(3) { width: 100%; }
+.m-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-top: 14px; font-size: 15px; font-weight: 500; color: var(--m-ink2); }
+
+/* ---------- meander progress (SVG drawn by Meander / monument.js) ---------- */
+.m-meander { width: 100%; height: auto; display: block; }
+.m-meander .m-rest { stroke: var(--m-line); }
+.m-meander .m-done { stroke: var(--m-orchid); }
+.m-meander[data-tone="ai"] .m-done { stroke: var(--m-bronze); }
+.m-meander[data-tone="error"] .m-done { stroke: var(--m-danger); }
+.m-meander .m-goal { stroke: var(--m-ink2); stroke-width: 2; stroke-dasharray: 3 4; }
+
+/* ---------- colonnade bar chart (SVG drawn by Colonnade / monument.js) ---------- */
+.m-colon-wrap { overflow-x: auto; overflow-y: hidden; padding-top: 4px; }
+.m-colon { width: 100%; height: auto; display: block; overflow: visible; }
+.m-colon .m-fact { fill: var(--m-marble); }
+.m-colon .m-part { fill: var(--m-marble-dim); }
+.m-colon .m-fc { fill: var(--m-bronze); }
+.m-colon .m-flute { stroke: var(--m-stone); stroke-width: 2.5; }
+.m-colon .m-flute-fc { stroke: var(--m-b-deep); stroke-width: 2.5; }
+[data-theme="paper"] .m-colon .m-flute-fc { stroke: var(--m-stone); }
+.m-colon .m-stylo { fill: var(--m-line); }
+.m-colon .m-val { fill: var(--m-ink); font: 700 20px var(--m-f-book); }
+.m-colon .m-lab { fill: var(--m-ink2); font: 500 18px var(--m-f-book); }
+.m-colon .m-mark { stroke: var(--m-ink2); stroke-width: 2; stroke-dasharray: 4 5; }
+.m-colon .m-mark-t { fill: var(--m-ink); font: 700 18px var(--m-f-book); }
+.m-colon .m-callout { fill: var(--m-orchid); font: 700 26px var(--m-f-book); }
+.m-legend { display: flex; flex-wrap: wrap; gap: 4px 22px; font-size: 15px; font-weight: 500; color: var(--m-ink2); }
+.m-legend i { display: inline-block; width: 14px; height: 14px; vertical-align: -1px; margin-right: 8px; background: var(--m-marble); }
+.m-legend i[data-k="partial"] { background: var(--m-marble-dim); }
+.m-legend i[data-k="forecast"] { background: var(--m-bronze); }
+
+/* ---------- data states: same height in every state ---------- */
+.m-state { display: grid; align-content: center; gap: 10px; }
+.m-skel { height: 14px; background: var(--m-slab2); }
+.m-skel + .m-skel { width: 72%; }
+
+/* ---------- phone frame for presenting mobile screens (not for real apps) ---------- */
+.m-phone { border: 1px solid var(--m-line); padding: 18px 18px 26px; display: grid; gap: 20px; align-content: start; max-width: 390px; }
+
+/* A slab marked data-mobile="note" turns into a margin note on phones, so a phone screen keeps one slab in total */
+@media (max-width: 600px) {
+  .m-slab[data-mobile="note"] { background: none; color: var(--m-ink2); padding: 10px 0 0; border-top: 3px solid var(--m-bronze); }
+  .m-slab[data-mobile="note"][data-tone="orchid"] { border-top-color: var(--m-orchid); }
+  .m-slab[data-mobile="note"] .m-slab-t { color: var(--m-bronze); }
+  .m-slab[data-mobile="note"][data-tone="orchid"] .m-slab-t, .m-slab[data-mobile="note"][data-tone="orchid"] .m-slab-k { color: var(--m-orchid); }
+  .m-slab[data-mobile="note"] .m-slab-k { font-size: 40px; color: var(--m-bronze); }
+  .m-slab[data-mobile="note"] .m-slab-body > b, .m-slab[data-mobile="note"] b { color: var(--m-ink); }
+  .m-slab[data-mobile="note"] .m-btn { background: var(--m-ink); color: var(--m-on-ink); }
+  .m-slab[data-mobile="note"] .m-redline ins { color: var(--m-bronze); }
+}
+@media (max-width: 900px) {
+  .m-bay[data-span] { grid-column: span 12; }
+  .m-bay[data-side] { border-left: 0; padding-left: 0; }
+  .m-slab[data-band="true"] { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-root * { transition: none !important; animation: none !important; }
+}
+@media print {
+  .m-root { background: #fff; }
+  .m-btn, .m-link { display: none; }
+}
+
+/* Prototype-only layout: the stage that holds each live variant. Uses kit tokens only. */
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--m-stone); min-height: 100vh; }
+.intro { display: grid; gap: 14px; padding: 30px 0 8px; max-width: 70ch; }
+.intro .m-thesis { max-width: 60ch; }
+.cand { padding-top: 44px; display: grid; gap: 16px; }
+.cand-head { display: grid; gap: 6px; }
+.cand-head .m-meta { max-width: 70ch; }
+.stage { position: relative; overflow: hidden; min-height: 420px; border-top: 1px solid var(--m-line); border-bottom: 1px solid var(--m-line); padding: 18px 0 22px; }
+.stage .m-top { padding-bottom: 12px; }
+.stage .m-app { font-size: 22px; }
+.stage-body { padding-top: 16px; display: grid; gap: 14px; }
+.vinfo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 32px; }
+.vinfo > div { display: grid; gap: 4px; align-content: start; }
+.vinfo b.k { font-size: 15px; font-weight: 700; color: var(--m-ink2); }
+.vinfo p { font-size: 16px; }
+.vote { font-weight: 700; }
+.vote b { color: var(--m-ink); }
+.cornice { height: 9px; border-top: 4px solid var(--m-ink); border-bottom: 1px solid var(--m-line); }
+.dim { position: absolute; inset: 0; background: color-mix(in srgb, var(--m-stone) 80%, transparent); }
+.rowact { text-align: right; white-space: nowrap; }
+.mini { font-size: 15px; }
+.mini td, .mini th { padding-top: 9px; padding-bottom: 9px; }
+.selbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; min-height: 52px; border-bottom: 1px solid var(--m-line); padding-bottom: 10px; }
+.selbar .q { font-size: 17px; font-weight: 700; }
+
+/* 1. dialog */
+.dlg { position: absolute; background: var(--m-stone); display: grid; gap: 14px; align-content: start; }
+.dlg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.dlg-a { left: 50%; top: 22px; transform: translateX(-50%); width: min(600px, calc(100% - 24px)); border: 1px solid var(--m-line); border-top: 0; padding: 0 26px 22px; }
+.dlg-a .cornice { margin: 0 -26px 6px; }
+.dlg-b { left: 0; right: 0; bottom: 0; padding: 0 max(16px, 4%) 22px; }
+.dlg-b .cornice { margin: 0 calc(-1 * max(16px, 4%)) 6px; }
+.dlg-c { top: 0; bottom: 0; right: 0; width: min(470px, 100%); border-left: 4px solid var(--m-ink); padding: 22px 26px; overflow: auto; }
+.dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 16px; }
+.dl dt { font-weight: 700; } .dl dd { margin: 0; color: var(--m-ink2); }
+
+/* 2. tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px 30px; border-bottom: 1px solid var(--m-line); }
+.tab { font: 600 17px/1.2 var(--m-f-book); color: var(--m-ink2); background: none; border: 0; padding: 12px 0 11px; cursor: pointer; display: inline-flex; gap: 12px; align-items: baseline; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tab .x { font-weight: 500; color: var(--m-ink3); }
+.tab .dirty { font-size: 15px; font-weight: 700; color: var(--m-ink); }
+.tab[aria-selected="true"] { color: var(--m-ink); font-weight: 700; }
+.tabs[data-v="orchid"] .tab[aria-selected="true"] { border-bottom-color: var(--m-orchid); }
+.tabs[data-v="ink"] .tab[aria-selected="true"] { border-bottom-color: var(--m-ink); }
+.tabs[data-v="spine"] { gap: 0; border-bottom: 2px solid var(--m-ink); }
+.tabs[data-v="spine"] .tab { border-bottom: 0; margin: 0; padding: 12px 22px 12px; border-top: 4px solid transparent; border-right: 1px solid var(--m-line); }
+.tabs[data-v="spine"] .tab:first-child { padding-left: 0; }
+.tabs[data-v="spine"] .tab[aria-selected="true"] { border-top-color: var(--m-ink); }
+.tabs[data-v="spine"] .tab:first-child[aria-selected="true"] { padding-left: 12px; }
+.src { font: 400 15px/1.6 ui-monospace, Consolas, monospace; color: var(--m-ink); white-space: pre-wrap; margin: 0; }
+
+/* 3. notices */
+.ntc-a { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--m-line); font-size: 16px; }
+.ntc-b { position: absolute; right: 16px; bottom: 16px; max-width: min(380px, calc(100% - 32px)); background: var(--m-slab2); border-left: 4px solid var(--m-ok); padding: 12px 16px; display: grid; gap: 4px; font-size: 15px; }
+.ntc-c { display: inline-flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; min-height: 51px; font-size: 16px; }
+.ntc-c .done { font-size: 17px; font-weight: 700; }
+
+/* 4. confirmation */
+.cf-a { position: absolute; left: 0; right: 0; bottom: 0; background: var(--m-stone); padding-bottom: 16px; }
+.cf-a .cf-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 12px; }
+.cf-q { display: grid; gap: 2px; } .cf-q b { font-size: 18px; }
+
+@media (max-width: 760px) {
+  .vinfo { grid-template-columns: minmax(0, 1fr); }
+  .stage { min-height: 500px; }
+  .hide-sm { display: none; }
+  /* A on a phone: the same window becomes a sheet from the bottom */
+  .dlg-a { left: 0; right: 0; top: auto; bottom: 0; transform: none; width: auto; border: 0; padding: 0 0 18px; } .dlg-a .cornice { margin: 0 0 6px; }
+  .dlg-c { padding: 18px; }
+}
+</style>
+
+<div class="m-page">
+  <header class="m-top">
+    <span class="m-app">Delphi</span>
+    <div class="m-seg" role="group" aria-label="Тема">
+      <button type="button" data-theme-btn="night" aria-pressed="true">Ночь</button>
+      <button type="button" data-theme-btn="paper" aria-pressed="false">Бумага</button>
+    </div>
+    <span class="m-context">Кандидаты в стандарт · прогон LocalMD, 6 ноября 2026</span>
+  </header>
+
+  <section class="intro">
+    <h1 class="m-h">Четыре элемента, которых не было в наборе</h1>
+    <p class="m-thesis">Агент собрал их сам на LocalMD. У каждого <b>три варианта</b>. Переключайте их прямо на экране, а под ним смотрите, с чем вариант может ассоциироваться и за какой голосую я.</p>
+    <p class="m-meta">Экраны рабочие (мастерская), поэтому без надписи, плит и меандра. Данные демо: очередь конвертации LocalMD.</p>
+  </section>
+
+  <!-- 1 -->
+  <section class="cand" data-cand="dlg">
+    <div class="cand-head">
+      <div class="m-label"><b>1. Модальное окно</b><span>справка «Форматы и пределы», подтверждение, настройки</span></div>
+      <p class="m-meta">Окно — единственное место, где без рамки или фона не обойтись: оно лежит поверх страницы. Фон под окном приглушён плоским камнем, без размытия.</p>
+    </div>
+    <div class="m-seg" role="group" aria-label="Вариант окна"></div>
+    <div class="stage">
+      <div class="m-top"><span class="m-app">LocalMD</span><span class="m-context">Конвертер · 9 файлов</span></div>
+      <div class="stage-body">
+        <div class="acts-line m-acts"><button type="button" class="m-btn" data-variant="secondary" data-open>Форматы и пределы</button><span class="m-meta">Нажмите, чтобы открыть окно снова</span></div>
+        <div data-table="plain"></div>
+      </div>
+      <div class="dim" data-layer></div>
+      <div class="dlg" data-layer data-dialog>
+        <div class="cornice" data-only="a b"></div>
+        <div class="dlg-head"><h2 class="m-h2" id="dlg-t">Форматы и пределы</h2><button type="button" class="m-link" data-close>Закрыть</button></div>
+        <p class="m-meta">LocalMD 1.0 · конвертер: локальная копия MarkItDown 0.1.7</p>
+        <dl class="dl">
+          <dt>Документы</dt><dd>PDF с текстовым слоем, DOCX, PPTX, EPUB</dd>
+          <dt>Таблицы</dt><dd>XLSX, XLS, CSV: таблица Markdown на каждый лист</dd>
+          <dt>Размер</dt><dd>до 150 МБ на файл, 2 задачи одновременно</dd>
+        </dl>
+        <div class="m-alert"><b>Сканы и картинки</b>Для PDF без текстового слоя нужен отдельный OCR.</div>
+      </div>
+    </div>
+    <div class="vinfo"></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="cand" data-cand="tabs">
+    <div class="cand-head">
+      <div class="m-label"><b>2. Вкладки</b><span>открытые документы в редакторе, разделы настроек</span></div>
+      <p class="m-meta">Вопрос не в форме, а в цвете: выбранная вкладка — это данные (орхидея) или состояние (тушь, как отмеченный чекбокс)? От ответа зависит и переключатель <code>Segmented</code>: сейчас он орхидеевый.</p>
+    </div>
+    <div class="m-seg" role="group" aria-label="Вариант вкладок"></div>
+    <div class="stage">
+      <div class="m-top"><span class="m-app">LocalMD</span><span class="m-context">Редактор · 3 документа открыто</span></div>
+      <div class="stage-body">
+        <div class="tabs" role="tablist" aria-label="Открытые документы">
+          <button type="button" class="tab" role="tab" aria-selected="true" data-doc="0">REPAIR-2022-INV-001.md <span class="x" aria-hidden="true">×</span></button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-doc="1">Заметки к смете.md <span class="dirty">не сохранён</span> <span class="x" aria-hidden="true">×</span></button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-doc="2">test.md <span class="x" aria-hidden="true">×</span></button>
+        </div>
+        <pre class="src" data-src></pre>
+      </div>
+    </div>
+    <div class="vinfo"></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="cand" data-cand="ntc">
+    <div class="cand-head">
+      <div class="m-label"><b>3. Сообщение после действия</b><span>«Сохранено», «Скопировано», «Файлы добавлены»</span></div>
+      <p class="m-meta">Ошибки остаются как есть: <code>Alert</code> в том месте, где сломалось. Здесь только подтверждение, что действие прошло.</p>
+    </div>
+    <div class="m-seg" role="group" aria-label="Вариант сообщения"></div>
+    <div class="stage">
+      <div class="m-top"><span class="m-app">LocalMD</span><span class="m-context">Конвертер · 8 готовы</span></div>
+      <div class="ntc-a" data-only="a" data-note hidden><span class="m-status">Сохранено 8 файлов .md</span><span class="m-meta">в D:\Markdown\Смета, 05:12</span><button type="button" class="m-link">Открыть папку</button></div>
+      <div class="stage-body">
+        <div class="m-acts" data-acts>
+          <button type="button" class="m-btn" data-fire>Сохранить 8 файлов</button>
+          <span class="ntc-c" data-only="c" data-note hidden><span class="m-status done">Сохранено в D:\Markdown\Смета</span><button type="button" class="m-link">Открыть папку</button></span>
+          <button type="button" class="m-link" data-plain>Скачать ZIP</button>
+        </div>
+        <div data-table="plain"></div>
+      </div>
+      <div class="ntc-b" data-only="b" data-note hidden role="status"><span class="m-status">Сохранено 8 файлов .md</span><span class="m-meta">D:\Markdown\Смета</span></div>
+    </div>
+    <div class="vinfo"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="cand" data-cand="cf">
+    <div class="cand-head">
+      <div class="m-label"><b>4. Подтверждение вместо confirm()</b><span>«Убрать 3 файла из очереди?»</span></div>
+      <p class="m-meta">Вместе с этим решается липкая панель решений из locqa (принять / отклонить в очереди проверки): вариант A и есть она.</p>
+    </div>
+    <div class="m-seg" role="group" aria-label="Вариант подтверждения"></div>
+    <div class="stage">
+      <div class="m-top"><span class="m-app">LocalMD</span><span class="m-context">Конвертер · отмечено 3 файла</span></div>
+      <div class="stage-body">
+        <div class="selbar" data-selbar></div>
+        <div data-table="check"></div>
+      </div>
+      <div class="cf-a" data-only="a" data-confirm hidden>
+        <div class="cornice"></div>
+        <div class="cf-in m-page" style="padding-top:12px;padding-bottom:0">
+          <div class="cf-q"><b>Убрать 3 файла из очереди?</b><span class="m-meta">Готовые .md останутся в папке.</span></div>
+          <div class="m-acts"><button type="button" class="m-btn" data-do>Убрать 3 файла</button><button type="button" class="m-link" data-cancel>Оставить</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="vinfo"></div>
+  </section>
+
+  <div class="m-base" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="m-foot"><span>Delphi Monument · кандидаты из прогона LocalMD</span><span>Решения записываются в proposals/README.md</span></div>
+</div>
+
+<script>
+const V = {
+  dlg: [
+    { id: "a", name: "A · Рама с карнизом", how: "Окно по центру, тонкая рамка, сверху карниз как у шапки: толстая линейка и тонкая.", assoc: "Обычный диалог из любого приложения; карниз делает его нашим.", vote: true, why: "Карниз повторяет шапку, и окно сразу читается как часть Монумента. На телефоне само становится листом снизу." },
+    { id: "b", name: "B · Лист снизу", how: "Окно на всю ширину поднимается снизу, сверху карниз, боковых рамок нет.", assoc: "Мобильный «bottom sheet». На широком экране похоже на панель cookies.", why: "Хорош на телефоне, но на 1440 px растягивается и теряется." },
+    { id: "c", name: "C · Отсек справа", how: "Панель справа с толстой линейкой слева, страница видна под ней.", assoc: "Боковая панель админки (drawer): Jira, Linear.", why: "Удобно, когда страницу надо видеть, но это самый «админский» вариант." },
+  ],
+  tabs: [
+    { id: "orchid", name: "A · Орхидея", how: "Открытая вкладка подчёркнута орхидеей, как сейчас Segmented.", assoc: "Нейтрально, но орхидея на навигации спорит с орхидеей на данных.", why: "Так собрал агент; на экране с плитой орхидеи краски становится много." },
+    { id: "ink", name: "B · Тушь", how: "Открытая вкладка подчёркнута тушью, текст жирный.", assoc: "Почти нет: как подчёркнутая ссылка в книге.", vote: true, why: "Выбор — состояние, как отмеченный чекбокс. Орхидея остаётся только у данных. Segmented тогда тоже станет тушью." },
+    { id: "spine", name: "C · Корешки", how: "Вкладки как корешки папок: открытая с толстой линейкой сверху, общая линейка снизу.", assoc: "Картотека, вкладки браузера, Excel.", why: "Узнаваемо и плотно, но больше линий, чем нужно." },
+  ],
+  ntc: [
+    { id: "a", name: "A · Строка под шапкой", how: "Строка под карнизом с отметкой «готово» и действием. Держится до следующего действия.", assoc: "Сообщение в Gmail «Письмо отправлено».", why: "Хорошо для пакетных действий, но далеко от кнопки, которую нажали." },
+    { id: "b", name: "B · Тост в углу", how: "Плашка в правом нижнем углу, исчезает через 6 секунд.", assoc: "Стандартный toast любого SaaS. Это самый «шаблонный» вариант.", why: "Самый привычный, поэтому самый слопный. Исчезает раньше, чем его прочли." },
+    { id: "c", name: "C · На месте действия", how: "Ответ появляется рядом с нажатой кнопкой и держится 8 секунд, с действием «Открыть папку».", assoc: "Почти нет: так отвечает форма в хорошем редакторе.", vote: true, why: "Глаз уже там, где нажал. Ничего не всплывает и не закрывает таблицу." },
+  ],
+  cf: [
+    { id: "a", name: "A · Панель внизу", how: "Липкая панель внизу с карнизом сверху: вопрос, последствие, два действия.", assoc: "Панель cookies или «несохранённые изменения». Это и есть липкая панель решений из locqa.", why: "Нужна для очереди проверки, где решение принимается много раз подряд. Для разового удаления тяжеловата." },
+    { id: "b", name: "B · В полосе выбора", how: "Полоса над таблицей, где были действия с отмеченными, сама становится вопросом.", assoc: "Почти нет: так подтверждает Gmail при массовых действиях.", vote: true, why: "Вопрос там же, где нажали, и не перекрывает строки. Липкую панель (A) оставить для очереди проверки." },
+    { id: "c", name: "C · Нажать ещё раз", how: "Кнопка меняет текст на «Нажмите ещё раз, чтобы убрать 3 файла» на 4 секунды.", assoc: "Подтверждение в некоторых редакторах кода. Легко нажать дважды случайно.", why: "Быстро, но не говорит о последствиях и плохо работает с клавиатуры." },
+  ],
+};
+
+const ROWS = [
+  ["REPAIR-2022-INV-001_multipage.pdf", "PDF · 173 КБ", "ok", "Готово", "5 089 знаков", "Открыть"],
+  ["test.docx", "DOCX · 133 КБ", "ok", "Готово", "4 651 знак", "Открыть"],
+  ["test.jpg", "JPG · 464 КБ", "warn", "Текст не найден", "нужен OCR", "Открыть"],
+  ["Договор-аренды-скан.pdf", "PDF · 1 КБ", "error", "Ошибка · E-CONV", "нет корневого объекта PDF", "Повторить"],
+];
+function table(kind) {
+  const chk = kind === "check";
+  return `<div class="m-tw"><table class="m-table mini"><thead><tr>${chk ? "<th><span class=\"hide-sm\">Выбор</span></th>" : ""}<th>Файл</th><th>Статус</th><th class="hide-sm">Результат</th><th></th></tr></thead><tbody>` +
+    ROWS.map((r, i) => `<tr>${chk ? `<td><label class="m-check"><input type="checkbox" ${i < 3 ? "checked" : ""} aria-label="Отметить ${r[0]}"><span></span></label></td>` : ""}<td><b>${r[0]}</b><small>${r[1]}</small></td><td><span class="m-status" data-kind="${r[2] === "ok" ? "" : r[2]}">${r[3]}</span></td><td class="hide-sm">${r[4]}</td><td class="rowact"><button type="button" class="m-link">${r[5]}</button></td></tr>`).join("") +
+    "</tbody></table></div>";
+}
+document.querySelectorAll("[data-table]").forEach((el) => { el.innerHTML = table(el.dataset.table); });
+document.querySelectorAll('.m-status[data-kind=""]').forEach((el) => el.removeAttribute("data-kind"));
+
+const DOCS = [
+  "# ZAVA AUTO REPAIR\nCertified Collision Repair\n123 Main Street, Redmond, WA 98052\n\n| Поле | Значение |\n| --- | --- |\n| Insured name | Gabriel Diaz |\n| Claim # | SF-1008 |",
+  "# Заметки к смете\n\n- Проверить VIN 1C4RJFBG2NC123456\n- Уточнить пробег: 9 800 миль\n- Отправить смету страховой до пятницы",
+  "# test\n\nИзвлекаемые данные не найдены.\nДля текста на изображениях нужен OCR.",
+];
+
+function setVariant(sec, id) {
+  const key = sec.dataset.cand;
+  const v = V[key].find((x) => x.id === id);
+  sec.querySelectorAll(".m-seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === id)));
+  sec.querySelector(".vinfo").innerHTML =
+    `<div><b class="k">Как устроено</b><p>${v.how}</p></div>` +
+    `<div><b class="k">Ассоциация</b><p>${v.assoc}</p></div>` +
+    `<div><b class="k">${v.vote ? "Мой голос: за" : "Мой голос: против"}</b><p class="${v.vote ? "vote" : ""}">${v.why}</p></div>`;
+  sec.dataset.v = id;
+  sec.querySelectorAll("[data-only]").forEach((el) => { el.dataset.on = el.dataset.only.split(" ").includes(id) ? "1" : "0"; });
+  if (key === "dlg") {
+    const d = sec.querySelector("[data-dialog]");
+    d.className = "dlg dlg-" + id;
+    sec.querySelector(".cornice").hidden = id === "c";
+    openDialog(sec, true);
+  }
+  if (key === "tabs") sec.querySelector(".tabs").dataset.v = id;
+  if (key === "ntc") fireNotice(sec);
+  if (key === "cf") resetConfirm(sec, true);
+}
+
+function openDialog(sec, open) { sec.querySelectorAll("[data-layer]").forEach((el) => { el.hidden = !open; }); }
+
+let ntcTimer;
+function fireNotice(sec) {
+  clearTimeout(ntcTimer);
+  const id = sec.dataset.v;
+  sec.querySelectorAll("[data-note]").forEach((el) => { el.hidden = el.dataset.on !== "1"; });
+  const btn = sec.querySelector("[data-fire]");
+  btn.hidden = id === "c";
+  if (id === "b") ntcTimer = setTimeout(() => { sec.querySelector(".ntc-b").hidden = true; }, 6000);
+  if (id === "c") ntcTimer = setTimeout(() => { sec.querySelector(".ntc-c").hidden = true; btn.hidden = false; }, 8000);
+}
+
+let cfTimer;
+function resetConfirm(sec, ask) {
+  clearTimeout(cfTimer);
+  const id = sec.dataset.v;
+  const bar = sec.querySelector("[data-selbar]");
+  const n = sec.querySelectorAll('[data-table] input:checked').length;
+  sec.querySelector("[data-confirm]").hidden = !(ask && id === "a" && n > 0);
+  const plain = `<span class="q">Отмечено: ${n}</span><button type="button" class="m-link" data-ask>Убрать отмеченные</button><button type="button" class="m-link">Сохранить .md</button>`;
+  if (id === "b" && ask && n > 0) {
+    bar.innerHTML = `<span class="q">Убрать ${n} ${n === 1 ? "файл" : "файла"} из очереди? <span class="m-meta">Готовые .md останутся в папке.</span></span><button type="button" class="m-btn" data-do>Убрать</button><button type="button" class="m-link" data-cancel>Оставить</button>`;
+  } else if (id === "c" && ask && n > 0) {
+    bar.innerHTML = `<span class="q">Отмечено: ${n}</span><button type="button" class="m-btn" data-do>Нажмите ещё раз, чтобы убрать ${n}</button><span class="m-meta">4 секунды</span>`;
+    cfTimer = setTimeout(() => resetConfirm(sec, false), 4000);
+  } else bar.innerHTML = plain;
+}
+
+document.querySelectorAll(".cand").forEach((sec) => {
+  const key = sec.dataset.cand;
+  const seg = sec.querySelector(".m-seg");
+  seg.innerHTML = V[key].map((v) => `<button type="button" data-v="${v.id}">${v.name}</button>`).join("");
+  seg.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) setVariant(sec, b.dataset.v); });
+  sec.addEventListener("click", (e) => {
+    const t = e.target.closest("button, input");
+    if (!t) return;
+    if (t.matches("[data-close]")) openDialog(sec, false);
+    if (t.matches("[data-open]")) openDialog(sec, true);
+    if (t.matches("[data-fire]")) fireNotice(sec);
+    if (t.matches(".tab")) {
+      sec.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+      sec.querySelector("[data-src]").textContent = DOCS[+t.dataset.doc];
+    }
+    if (key === "cf") {
+      if (t.matches("[data-ask]")) resetConfirm(sec, true);
+      else if (t.matches("[data-do]")) {
+        sec.querySelectorAll("[data-table] input:checked").forEach((i) => { i.closest("tr").remove(); });
+        resetConfirm(sec, false);
+      } else if (t.matches("[data-cancel]")) resetConfirm(sec, false);
+      else if (t.matches("input")) resetConfirm(sec, false);
+    }
+  });
+  if (key === "tabs") sec.querySelector("[data-src]").textContent = DOCS[0];
+  setVariant(sec, V[key].find((v) => v.vote).id);
+});
+
+document.querySelectorAll("[data-theme-btn]").forEach((b) => b.addEventListener("click", () => {
+  document.body.dataset.theme = b.dataset.themeBtn;
+  document.querySelectorAll("[data-theme-btn]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+}));
+document.body.classList.add("m-root");
+document.body.dataset.theme = "night";
+</script>

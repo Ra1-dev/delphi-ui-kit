@@ -8,6 +8,8 @@ export { Thesis, MuseumLabel, Question, Who } from "./Text";
 export { AppHeader, Page, Grid, Bay, Base } from "./Layout";
 export type { NavItem } from "./Layout";
 export { Button, LinkButton, TextField, TextArea, SelectField, Segmented, Checkbox, ProgressBar } from "./Controls";
+export { Tabs, Dialog, Done, useDone, SelectionBar, Dock } from "./Actions";
+export type { TabItem, Confirm } from "./Actions";
 export { DataState } from "./DataState";
 export type { DataStateKind } from "./DataState";
 export { cx } from "./cx";

@@ -9,8 +9,10 @@ type Props = {
   state: DataStateKind;
   /** Same height in every state, so the page does not jump. Default 220 */
   minHeight?: number;
-  /** loading: what is being done, e.g. "Читаю кассы за 31 день", and how far (0..1) */
-  loading?: { text: string; progress?: number };
+  /** loading: what is being done, e.g. "Читаю кассы за 31 день", and how far (0..1).
+   *  No progress reported = no meander: the words and the skeleton only, never an invented fraction.
+   *  tone: "ai" (default) when the AI is working, "data" for the product's own work (a product without AI) */
+  loading?: { text: string; progress?: number; tone?: "ai" | "data" };
   /** empty: what is missing and the one action that fixes it */
   empty?: { title: string; text?: string; action?: string; onAction?: () => void };
   /** error: what broke, a code, the last known value, retry */
@@ -21,7 +23,8 @@ type Props = {
 };
 
 /**
- * Every block that shows data has five states at the same height. Loading = bronze meander (the AI/system is working).
+ * Every block that shows data has five states at the same height. Loading = a meander when progress is known
+ * (bronze while the AI works, orchid for the product's own work), otherwise words and a skeleton.
  * Never leave a blank area while data loads.
  */
 export function DataState({ state, minHeight = 220, loading, empty, error, partial, children }: Props) {
@@ -30,7 +33,9 @@ export function DataState({ state, minHeight = 220, loading, empty, error, parti
     return (
       <div className="m-state" style={box} role="status">
         <span className="m-who">{loading?.text ?? "Загружаю данные"}</span>
-        <Meander value={loading?.progress ?? 0.35} tone="ai" label={`Загрузка${loading?.progress != null ? `, ${Math.round(loading.progress * 100)}%` : ""}`} />
+        {loading?.progress != null && (
+          <Meander value={loading.progress} tone={loading.tone ?? "ai"} label={`Загрузка, ${Math.round(loading.progress * 100)}%`} />
+        )}
         <div className="m-skel" /><div className="m-skel" />
       </div>
     );

@@ -4,12 +4,12 @@
   Two layers: showcase (default scale) and workshop (add .m-dense to a container: smaller type, tighter rows).
 
   Colour roles, never by hue:
-    orchid  = the data that matters (key figure, lagging rows, selected item, data progress)
+    orchid  = the data that matters (key figure, lagging rows, data progress)
     bronze  = the voice of the AI and the forecast (AI notes, forecast line/columns, AI progress, active nav)
     gold    = warnings only
     danger  = errors only
     ok      = success marks only
-  Buttons, links and focus are ink. Paint never fills a button.
+  Buttons, links, focus and selection (checked box, open tab, chosen segment) are ink. Paint never fills a button.
 
   This file and theme.css are the only places where raw colours may live.
 */
@@ -194,10 +194,43 @@
 .m-dense .m-field :is(input, select, textarea) { font-size: 16px; border-bottom-width: 2px; padding: 5px 0; }
 .m-seg { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .m-seg button { font: 600 17px/1 var(--m-f-book); color: var(--m-ink2); background: none; border: 0; border-bottom: 3px solid transparent; padding: 6px 0 8px; cursor: pointer; }
-.m-seg button[aria-pressed="true"] { color: var(--m-ink); border-bottom-color: var(--m-orchid); }
+.m-seg button[aria-pressed="true"] { color: var(--m-ink); border-bottom-color: var(--m-ink); }
 .m-check { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 16px; font-weight: 500; cursor: pointer; }
 .m-check input { appearance: none; width: 22px; height: 22px; margin: 1px 0 0; border: 2px solid var(--m-ink); border-radius: 0; background: transparent; display: grid; place-content: center; cursor: pointer; }
-.m-check input:checked::before { content: ""; width: 12px; height: 12px; background: var(--m-orchid); }
+.m-check input:checked::before { content: ""; width: 12px; height: 12px; background: var(--m-ink); }
+
+/* ---------- tabs: the open tab is underlined in ink (a selection is a state, not data) ---------- */
+.m-tabs { display: flex; flex-wrap: wrap; gap: 4px 30px; border-bottom: 1px solid var(--m-line); }
+.m-tabw { display: inline-flex; align-items: baseline; }
+.m-tab { font: 600 17px/1.2 var(--m-f-book); color: var(--m-ink2); background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 12px 0 11px; cursor: pointer; display: inline-flex; gap: 12px; align-items: baseline; }
+.m-tab:hover { color: var(--m-ink); }
+.m-tab[aria-selected="true"] { color: var(--m-ink); font-weight: 700; border-bottom-color: var(--m-ink); }
+.m-tab .m-tab-flag { font-size: 15px; font-weight: 700; color: var(--m-ink); }
+.m-tab-x { font: 500 18px/1 var(--m-f-book); color: var(--m-ink3); background: none; border: 0; padding: 11px 4px 11px 10px; min-width: 32px; cursor: pointer; }
+.m-tab-x:hover { color: var(--m-ink); }
+.m-dense .m-tab { font-size: 16px; padding: 9px 0 8px; }
+
+/* ---------- dialog: native <dialog>, a thin frame with the cornice on top; a sheet from the bottom on phones ---------- */
+.m-dialog { margin: max(48px, 8vh) auto auto; width: min(640px, calc(100% - 32px)); max-width: none; max-height: calc(100% - 96px); overflow: auto; color: var(--m-ink); background: var(--m-stone); border: 1px solid var(--m-line); border-top: 0; border-radius: 0; padding: 0 26px 24px; }
+.m-dialog[open] { display: grid; gap: 14px; align-content: start; }
+.m-dialog::before { content: ""; height: 9px; margin: 0 -26px 6px; border-top: 4px solid var(--m-ink); border-bottom: 1px solid var(--m-line); }
+.m-dialog::backdrop { background: rgba(20, 23, 27, .8); }
+[data-theme="paper"] .m-dialog::backdrop { background: rgba(244, 243, 239, .82); }
+.m-dialog-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+
+/* ---------- the answer to an action, where the action was: replaces the button for 8 s ---------- */
+.m-done { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; min-height: 51px; padding-top: 14px; }
+.m-done > .m-status { font-size: 17px; }
+
+/* ---------- selection bar above a table: actions on the checked rows; turns into the confirmation question ---------- */
+.m-selbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; min-height: 52px; padding-bottom: 10px; border-bottom: 1px solid var(--m-line); }
+.m-selbar-q { font-size: 17px; font-weight: 700; }
+.m-selbar-q .m-meta { margin-left: 8px; }
+
+/* ---------- decision dock: review queues only (accept / reject, many times in a row) ---------- */
+.m-dock { position: sticky; bottom: 0; z-index: 20; background: var(--m-stone); padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+.m-dock::before { content: ""; display: block; height: 9px; margin-bottom: 12px; border-top: 4px solid var(--m-ink); border-bottom: 1px solid var(--m-line); }
+.m-dock-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 
 /* ---------- tables ---------- */
 .m-tw { overflow-x: auto; }
@@ -268,6 +301,8 @@
 
 /* A slab marked data-mobile="note" turns into a margin note on phones, so a phone screen keeps one slab in total */
 @media (max-width: 600px) {
+  .m-dialog { margin: auto 0 0; width: 100%; max-height: 85vh; border: 0; padding: 0 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .m-dialog::before { margin: 0 -16px 6px; }
   .m-slab[data-mobile="note"] { background: none; color: var(--m-ink2); padding: 10px 0 0; border-top: 3px solid var(--m-bronze); }
   .m-slab[data-mobile="note"][data-tone="orchid"] { border-top-color: var(--m-orchid); }
   .m-slab[data-mobile="note"] .m-slab-t { color: var(--m-bronze); }

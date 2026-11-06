@@ -36,6 +36,12 @@ AI-generated UI is recognisable by a small set of defaults. Removing them is not
 | Chat bubbles with avatars | the default chat template | the protocol: question as heading, answer as exhibit |
 | Paint on buttons | colour loses meaning | ink buttons; paint = data and AI voice |
 | Many meanders or pink columns "for style" | a sign turns into a theme | meander ≤ 2 per screen, columns marble/bronze only |
+| A finished meander left on the page, full width | a full meander is a frieze: the strip of ornament we banned | when the work is done the meander leaves, the result takes its place |
+| A painted checkbox in every row of a table | paint as decoration, repeated into wallpaper | ink checks; orchid only on the data that matters |
+| Three underlined actions in every row (Открыть · Сохранить · Убрать) | the stock admin table in another paint | one action per row, the rest on the selection from one bar |
+| A bare figure on a slab ("8") that the thesis already said | the number loses its meaning and the slab repeats the text | the figure with its denominator ("8 из 9"), the thesis says what it means |
+| A toast in the corner ("Сохранено!") that vanishes in 3 seconds | the default SaaS notification; it is gone before it is read and lands far from the action | `Done` in place of the pressed button, with the next step |
+| A centred confirm box over the page for every delete | the browser `confirm()` in another paint | the question in the `SelectionBar`, with the consequence and the verb with the count |
 | Every text the same small size | the strongest slop signal for this team | big bold key number, thesis and actions |
 
 ## The test before "done"
